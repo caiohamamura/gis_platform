@@ -1,6 +1,6 @@
 let osm = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', { attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors', minZoom: 0, maxZoom: 18 });
 
-let lyr = L.tileLayer('http://localhost:8080/{z}/{x}/{y}.png', { tms: 0, opacity: 0.7, attribution: "", minZoom: 0, maxZoom: 18, nativeZooms: [0, 1, 2, 3, 4, 5, 6, 7, 8] });
+let lyr = L.tileLayer('tms/{z}/{x}/{y}.png', { tms: 0, opacity: 0.7, attribution: "", minZoom: 0, maxZoom: 18, nativeZooms: [0, 1, 2, 3, 4, 5, 6, 7] });
 
 let map = L.map('map', {
     layers: [osm, lyr],
@@ -18,44 +18,41 @@ L.control.scale().addTo(map);
 let rectangle;
 let isDrawing = false;
 let startPoint, endPoint;
+let thePopup;
 
 
 function drawRectangle() {
+    document.getElementById('draw').classList.add('drawing');
     map.dragging.disable();
     map.on('mousedown', onMouseDown);
     map.on('mousemove', onMouseMove);
-    map.on('mouseup', onMouseUp);
-    if (rectangle) {
-        rectangle.remove();
-    }
+    document.addEventListener('mouseup', onMouseUp);
+    
+    rectangle?.remove();
+    rectangle = undefined;
+    thePopup?.remove()
+    thePopup = undefined;
 
     isDrawing = true;
 }
 
+
 async function onMouseUp() {
+    document.getElementById('draw').classList.remove('drawing');
     map.dragging.enable();
     map.off('mousedown', onMouseDown);
     map.off('mousemove', onMouseMove);
-    map.off('mouseup', onMouseUp);
+    document.removeEventListener('mouseup', onMouseUp);
 
     if (rectangle) {
-        let res2 = await fetch(`http://localhost:9000/plot?bbox=1,1,1,1&layer=carbon`)
-        let obj2 = await res2.text();
         
-        console.log(obj2);
         let bounds = rectangle.getBounds();
-        L.popup()
-            .setLatLng(bounds._northEast)
-            .setContent(`<html>${obj2}</html>`)
-            .addTo(map);
         let res = await fetch(`http://localhost:9000/api?bbox=${bounds.toBBoxString()}&layer=carbon`)
         let obj = await res.json();
-        console.log(obj.mean[0]);
-        console.log(bounds);
-        // L.popup()
-        //     .setLatLng(bounds._northEast)
-        //     .setContent(`<p>Mean: ${obj.mean[0]}</p>`)
-        //     .addTo(map);
+        thePopup = L.popup()
+            .setLatLng(bounds._northEast)
+            .setContent(`<p>Mean: ${obj.mean[0]}</p>`)
+            .addTo(map);
 
     }
 
@@ -67,6 +64,9 @@ function onMouseDown(e) {
         startPoint = e.latlng;
         endPoint = e.latlng;
         rectangle = L.rectangle([startPoint, endPoint], { color: 'red' }).addTo(map);
+        rectangle.on('mouseover', function() {
+            thePopup?.addTo(map);
+        });
     }
 }
 

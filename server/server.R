@@ -1,15 +1,10 @@
 library(pacman)
-pacman::p_load(pandoc)
-if (pandoc::pandoc_available() == FALSE) {
-  pandoc::pandoc_install()
-}
-rmarkdown::find_pandoc(dir=pandoc::pandoc_locate())
-
-library(plumber)
-library(raster)
-library(glue)
-library(ggplot2)
-library(plotly)
+pacman::p_load(
+  plumber,
+  terra,
+  glue,
+  sf
+)
 # Filters
 
 #* @filter cors
@@ -45,18 +40,4 @@ api <- function(bbox, layer) {
     mean = mean$mean
   )
   return(response)
-}
-
-#* Apply function
-#* Example usage: http://localhost:9000/plot?bbox=6,8,7,9&layer=carbon
-#* @param bbox Bounding box
-#* @param layer The layer name
-#* @serializer htmlwidget
-#* @get /plot
-plot <- function(bbox, layer) {
-   p <- ggplot(data = diamonds,
-                  aes(x = cut, fill = clarity)) +
-        geom_bar(position = "dodge")
-
-      ggplotly(p)
 }
