@@ -39,15 +39,23 @@ async function onMouseUp() {
     map.off('mouseup', onMouseUp);
 
     if (rectangle) {
+        let res2 = await fetch(`http://localhost:9000/plot?bbox=1,1,1,1&layer=carbon`)
+        let obj2 = await res2.text();
+        
+        console.log(obj2);
         let bounds = rectangle.getBounds();
+        L.popup()
+            .setLatLng(bounds._northEast)
+            .setContent(`<html>${obj2}</html>`)
+            .addTo(map);
         let res = await fetch(`http://localhost:9000/api?bbox=${bounds.toBBoxString()}&layer=carbon`)
         let obj = await res.json();
         console.log(obj.mean[0]);
         console.log(bounds);
-        L.popup()
-            .setLatLng(bounds._northEast)
-            .setContent(`<p>Mean: ${obj.mean[0]}</p>`)
-            .addTo(map);
+        // L.popup()
+        //     .setLatLng(bounds._northEast)
+        //     .setContent(`<p>Mean: ${obj.mean[0]}</p>`)
+        //     .addTo(map);
 
     }
 
