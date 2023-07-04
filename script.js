@@ -4,7 +4,7 @@ let lyr = L.tileLayer('http://localhost:8080/{z}/{x}/{y}.png', { tms: 0, opacity
 
 let map = L.map('map', {
     layers: [osm, lyr],
-}).setView([40, -90], 6);
+}).setView([40, -90], 3);
 
 L.control.scale().addTo(map);
 
