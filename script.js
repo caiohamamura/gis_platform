@@ -63,15 +63,15 @@ async function handleDrawEnd(event) {
                 .addTo(map);
             break;
         case 'Polygon':
-            console.log('Polygon');
-            console.log(event);
+            //console.log('Polygon');
+            //console.log(event);
             let wkt = convertLatLngToWKT(event.layer.getLatLngs()[0]);
             res = await fetch(`http://localhost:9000/polygon?${new URLSearchParams({
                 wkt: wkt
             })
                 }`);
             obj = await res.json();
-            console.log(obj);
+            // console.log(obj);
             thePopup = L.popup()
                 .setLatLng(overlay.getBounds()._northEast)
                 .setContent(`<p>Mean: ${obj.mean[0]}</p>`)
@@ -155,14 +155,15 @@ function convertLatLngToWKT(latlngList, srid) {
 // }
 
 let results = [];
+let searchLayer;
 
 $('.ui.search')
     .search({
-        searchDelay: 400,
+        searchDelay: 500,
         apiSettings: {
-            url: 'https://nominatim.openstreetmap.org/search.php?q={query}&polygon_geojson=0&format=jsonv2',
+            url: 'https://nominatim.openstreetmap.org/search.php?q={query}&polygon_geojson=1&format=jsonv2',
             onResponse: function (res) {
-                console.log(res);
+                // console.log(res);
                 results = res;
                 var
                     response = {
@@ -172,15 +173,37 @@ $('.ui.search')
                 response.results = Object.values(res).map((el, ind) => ({
                     title: el.display_name,
                     bbox: el.boundingbox,
+                    geojson: el.geojson,
+                    lat: el.lat,
+                    lon: el.lon,
                 }));
                 return response;
             },
         },
-        onSelect: function(result, response) {
+        onSelect: function (result, response) {
             // console.log(result);
             // console.log(response);
             let bbox = result.bbox;
-    map.fitBounds([[bbox[0], bbox[2]],[bbox[1],bbox[3]]]);
+            map.fitBounds([[bbox[0], bbox[2]], [bbox[1], bbox[3]]]);
+            searchLayer?.remove();
+            searchLayer = L.geoJSON(result.geojson).addTo(map);
+            queryGeoJson(result);
         }
     });
 
+async function queryGeoJson(result) {
+    res = await fetch('http://localhost:9000/geojson',{
+        method: 'POST',
+        body: JSON.stringify({
+            "geojson": result.geojson
+        })
+    });
+    obj = await res.json();
+    // console.log(obj);
+    thePopup?.remove();
+    thePopup = undefined;
+    thePopup = L.popup()
+        .setLatLng([result.lat, result.lon])
+        .setContent(`<p>Mean: ${obj.mean[0]}</p>`)
+        .addTo(map);
+}

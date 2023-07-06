@@ -61,6 +61,7 @@ polygon <- function(wkt, layer) {
     
     # Crop the raster 'r' using the polygon
     cropped_raster <- crop(r, poly)
+    masked_raster <- mask(cropped_raster, poly)
     
     # Calculate the global mean
     mean_value <- terra::global(cropped_raster, fun='mean', na.rm=T)
@@ -71,6 +72,30 @@ polygon <- function(wkt, layer) {
     ))
 }
 
+#* Apply polygon geojson
+#* Example usage: http://localhost:9000/
+#* @param geojson:[geojson] The geojson from the polygon
+#* @post /geojson
+geojson <- function(req, geojson) {
+    # Create a terra polygon from the WKT
+
+    poly <- sf::st_read(req$body)
+    
+    # Reproject the polygon to CRS 6933
+    poly <- sf::st_transform(poly, crs=6933)
+    
+    # Crop the raster 'r' using the polygon
+    cropped_raster <- crop(r, poly)
+    masked_raster <- mask(cropped_raster, poly)
+    
+    # Calculate the global mean
+    mean_value <- terra::global(cropped_raster, fun='mean', na.rm=T)
+    
+    # Create a list with the mean value
+    return(list(
+      mean = mean_value$mean
+    ))
+}
 
 #* @param file:[file]
 #* @post /upload
