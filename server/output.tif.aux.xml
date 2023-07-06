@@ -1,0 +1,13 @@
+<PAMDataset>
+  <PAMRasterBand band="1">
+    <Description>Variance Component 2</Description>
+    <Metadata>
+      <MDI key="STATISTICS_APPROXIMATE">YES</MDI>
+      <MDI key="STATISTICS_MAXIMUM">514292.125</MDI>
+      <MDI key="STATISTICS_MEAN">246.06567739833</MDI>
+      <MDI key="STATISTICS_MINIMUM">0</MDI>
+      <MDI key="STATISTICS_STDDEV">3111.2492482073</MDI>
+      <MDI key="STATISTICS_VALID_PERCENT">53.77</MDI>
+    </Metadata>
+  </PAMRasterBand>
+</PAMDataset>

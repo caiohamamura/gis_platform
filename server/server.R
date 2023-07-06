@@ -3,7 +3,7 @@ pacman::p_load(
   plumber,
   terra,
   glue,
-  sf
+  geojsonsf
 )
 # Filters
 
@@ -29,9 +29,11 @@ api <- function(bbox, layer) {
   # Split the parameter into a numeric vector
   bbox <- as.numeric(strsplit(bbox, ",")[[1]])
 
-  extent = glue::glue("SRID=4326;LINESTRING({bbox[1]} {bbox[2]}, {bbox[3]} {bbox[4]})")
-  trans = sf::st_transform(sf::st_as_sfc(extent), crs=6933)
-  bbox = sf::st_bbox(trans)
+  line = glue::glue("LINESTRING({bbox[1]} {bbox[2]}, {bbox[3]} {bbox[4]})")
+  lineVect = terra::vect(line)
+  crs(lineVect) = 'epsg:4326'
+  trans = terra::project(lineVect, 'epsg:6933')
+  bbox = terra::ext(trans)
   clip = terra::crop(r, bbox)
   mean = terra::global(clip, fun='mean', na.rm=T)
   
@@ -41,3 +43,62 @@ api <- function(bbox, layer) {
   )
   return(response)
 }
+
+#* Apply polygon
+#* Example usage: http://localhost:9000/polygon?wkt=<polygonWKT>&layer=carbon
+#* @param wkt The wkt from the polygon
+#* @param layer The layer name
+#* @get /polygon
+polygon <- function(wkt, layer) {
+    # Create a terra polygon from the WKT
+    poly <- terra::vect(wkt)
+    
+    # Set the original coordinate reference system (crs) to 4326
+    crs(poly) <- '+init=epsg:4326'
+    
+    # Reproject the polygon to CRS 6933
+    poly <- project(poly, "+init=epsg:6933")
+    
+    # Crop the raster 'r' using the polygon
+    cropped_raster <- crop(r, poly)
+    
+    # Calculate the global mean
+    mean_value <- terra::global(cropped_raster, fun='mean', na.rm=T)
+    
+    # Create a list with the mean value
+    return(list(
+      mean = mean_value$mean
+    ))
+}
+
+
+#* @param file:[file]
+#* @post /upload
+function(file) {
+  tmp = paste0(tempfile(), '.zip')
+  writeBin(file[[names(file)]], tmp)
+
+  tempdir = dirname(tmp)
+  unzip(tmp, exdir=tempdir)
+
+  shp = file.path(tempdir, list.files(tempdir, pattern='*.shp')[1])
+  shp = sf::st_read(shp)
+  
+  on.exit({
+    unlink(tempdir, recursive = T)
+  })
+  
+  transformed = sf::st_transform(shp, crs=6933)
+  clippedRaster = terra::crop(r, transformed)
+  maskedRaster = terra::mask(clippedRaster, transformed)
+  mean = terra::global(maskedRaster, fun='mean', na.rm=T)
+  # Return a JSON response
+  response <- list(
+    mean = mean$mean,
+    geojson = sf_geojson(shp)
+  )
+
+  unlink(tempdir, recursive=T)
+  return(response)  
+}
+
