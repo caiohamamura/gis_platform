@@ -5,6 +5,12 @@ let osm = L.tileLayer(
     maxZoom: 18,
 });
 
+let landsat = L.esri
+    .imageMapLayer({
+        url: "https://landsat.arcgis.com/arcgis/rest/services/Landsat/PS/ImageServer",
+        attribution: "United States Geological Survey (USGS), National Aeronautics and Space Administration (NASA)"
+    });
+
 let lyr = L.tileLayer(
     'tms/{z}/{x}/{y}.png',
     {
@@ -20,12 +26,27 @@ let lyr = L.tileLayer(
         ],
     });
 
+
+
 let map = L.map('map', {
     pmIgnore: false,
     layers: [osm, lyr],
+    zoomControl: false,
 }).setView([40, -90], 3);
 
+var baseMaps = {
+    "OpenStreetMap": osm,
+    // "Landsat": landsat
+};
+
+// Allow drawing rectangle
+let overlays = [];
+
+var layerControl = L.control.layers(baseMaps, [lyr, ...overlays], options = { "collapsed": false, position: 'topleft' }).addTo(map);
+var zoomControl = L.control.zoom().addTo(map);
+
 L.control.scale().addTo(map);
+layerControl._baseLayersList.querySelector('label:nth-child(1)>span>span').classList.add('checked');
 
 map.pm.addControls({
     position: 'topleft',
@@ -42,12 +63,11 @@ map.pm.addControls({
 });
 
 
-// Allow drawing rectangle
-let overlays = [];
+
 
 function bindPopup(overlay, mean) {
     overlay.bindPopup(
-        L.popup({closeOnClick: false,})
+        L.popup({ closeOnClick: false, })
             .setLatLng(overlay.getBounds().getCenter())
             .setContent(`<p>Mean: ${mean}</p>`)
             .addTo(map));
@@ -215,3 +235,9 @@ async function queryGeoJson(result) {
     obj = await res.json();
     bindPopup(searchLayer, obj.mean[0]);
 }
+
+map.on('baselayerchange', function (e) {
+    // e.layer is the selected base layer
+    $(".leaflet-control-layers-base > label > span > span").each((i, el) => { if (el.innerText == e.name) { el.classList.add('checked'); } else { el.classList.remove('checked'); } });
+
+});

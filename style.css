@@ -21,13 +21,13 @@ body {
     display: flex;
     justify-content: space-between;
     text-shadow:
-        1px 0px 1px white, 
-        -1px 0px 1px white, 
-        0px 1px 1px white, 
-        0px -1px 1px white, 
-        1px 1px 1px white, 
-        -1px -1px 1px white, 
-        -1px 1px 1px white, 
+        1px 0px 1px white,
+        -1px 0px 1px white,
+        0px 1px 1px white,
+        0px -1px 1px white,
+        1px 1px 1px white,
+        -1px -1px 1px white,
+        -1px 1px 1px white,
         1px -1px 1px white;
 }
 
@@ -36,13 +36,13 @@ body {
     height: 100%;
     background: linear-gradient(90deg, rgb(215 25 28), rgb(255 255 192), rgb(26 150 65));
     box-shadow:
-        1px 0px 1px white, 
-        -1px 0px 1px white, 
-        0px 1px 1px white, 
-        0px -1px 1px white, 
-        1px 1px 1px white, 
-        -1px -1px 1px white, 
-        -1px 1px 1px white, 
+        1px 0px 1px white,
+        -1px 0px 1px white,
+        0px 1px 1px white,
+        0px -1px 1px white,
+        1px 1px 1px white,
+        -1px -1px 1px white,
+        -1px 1px 1px white,
         1px -1px 1px white;
 }
 
@@ -63,8 +63,13 @@ img.leaflet-tile {
     position: fixed;
     z-index: 500;
     top: 10px;
-    left: 50px;
-    width: 280px;
+    right: 10px;
+    width: 50vw;
+}
+
+#search .text {
+    overflow: hidden;
+    max-height: 100%; 
 }
 
 #search .selection {
@@ -80,6 +85,33 @@ img.leaflet-tile {
     font-size: 14px;
     opacity: 0.4;
     margin-top: 12px;
+}
+
+.leaflet-control-layers-base {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.leaflet-control-layers-base>label>span {
+    padding: 5px;
+}
+
+.leaflet-control-layers-base>label:not(:first-child) {
+    border-left: 1px solid #ccc;
+}
+
+.leaflet-control-layers-overlays,
+.leaflet-control-layers-separator {
+    display: none;
+}
+
+input.leaflet-control-layers-selector {
+    display: none;
+}
+
+span:has(.checked) {
+    font-weight: 600;
 }
 
 input[type="file"] {
