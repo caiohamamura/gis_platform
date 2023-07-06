@@ -43,24 +43,29 @@ map.pm.addControls({
 
 
 // Allow drawing rectangle
-let overlay;
-let thePopup;
+let overlays = [];
+
+function bindPopup(overlay, mean) {
+    overlay.bindPopup(
+        L.popup({closeOnClick: false,})
+            .setLatLng(overlay.getBounds().getCenter())
+            .setContent(`<p>Mean: ${mean}</p>`)
+            .addTo(map));
+    overlays.push(overlay);
+    overlay.on('mouseover', function () {
+        this.openPopup();
+    });
+}
 
 async function handleDrawEnd(event) {
-    overlay = event.layer;
-    overlay.on('mouseover', function () {
-        thePopup?.addTo(map);
-    });
+    let overlay = event.layer;
+    overlays.push(overlay);
     let res, obj;
     switch (event.shape) {
         case 'Rectangle':
-            let bounds = overlay.getBounds();
-            res = await fetch(`http://localhost:9000/api?bbox=${bounds.toBBoxString()}&layer=carbon`)
+            res = await fetch(`http://localhost:9000/api?bbox=${overlay.getBounds().toBBoxString()}&layer=carbon`)
             obj = await res.json();
-            thePopup = L.popup()
-                .setLatLng(bounds._northEast)
-                .setContent(`<p>Mean: ${obj.mean[0]}</p>`)
-                .addTo(map);
+            bindPopup(overlay, obj.mean[0]);
             break;
         case 'Polygon':
             //console.log('Polygon');
@@ -72,24 +77,16 @@ async function handleDrawEnd(event) {
                 }`);
             obj = await res.json();
             // console.log(obj);
-            thePopup = L.popup()
-                .setLatLng(overlay.getBounds()._northEast)
-                .setContent(`<p>Mean: ${obj.mean[0]}</p>`)
-                .addTo(map);
+            bindPopup(overlay, obj.mean[0]);
             break;
     }
 }
 
 map.on('pm:create', handleDrawEnd);
-map.on('pm:drawstart', function () {
-    thePopup?.remove();
-    thePopup = undefined;
-    overlay?.remove();
-});
 
 map.pm.Toolbar.createCustomControl({
     name: 'uploadShp',
-    block: 'custom',
+    block: '',
     className: 'fas fa-file-upload font-awesome-toolbar',
     title: 'Upload zipped shapefile',
     onClick: () => {
@@ -103,20 +100,28 @@ map.pm.Toolbar.createCustomControl({
                 body: formData
             });
             const obj = await response.json();
-            overlay?.remove();
-            overlay = L.geoJSON(JSON.parse(obj.geojson[0])).addTo(map);
-            thePopup?.remove();
-            thePopup = undefined;
-            thePopup = L.popup()
-                .setLatLng(overlay.getBounds()._northEast)
-                .setContent(`<p>Mean: ${obj.mean[0]}</p>`)
-                .addTo(map);
+            let overlay = L.geoJSON(JSON.parse(obj.geojson[0])).addTo(map);
+            bindPopup(overlay, obj.mean[0]);
         }
     },
     toggle: false,
 });
 
-
+map.pm.Toolbar.createCustomControl({
+    name: 'clearAll',
+    block: 'custom',
+    className: 'fas fa-remove font-awesome-toolbar',
+    title: 'Clear all layers',
+    onClick: () => {
+        for (let layerIndex = 0; layerIndex < overlays.length; layerIndex++) {
+            overlays[layerIndex]?.remove();
+            delete overlays[layerIndex];
+        }
+        delete overlays;
+        overlays = [];
+    },
+    toggle: false,
+});
 
 function convertLatLngToWKT(latlngList, srid) {
     var wktString = "POLYGON ((";
@@ -157,53 +162,56 @@ function convertLatLngToWKT(latlngList, srid) {
 let results = [];
 let searchLayer;
 
-$('.ui.search')
-    .search({
+$('#searchPrompt')
+    .dropdown({
+        forceSelection: true,
         searchDelay: 500,
         apiSettings: {
-            url: 'https://nominatim.openstreetmap.org/search.php?q={query}&polygon_geojson=1&format=jsonv2',
+            url: 'https://nominatim.openstreetmap.org/search.php?q={query}&format=jsonv2',
             onResponse: function (res) {
                 // console.log(res);
-                results = res;
-                var
-                    response = {
-                        results: {}
-                    }
-                    ;
-                response.results = Object.values(res).map((el, ind) => ({
-                    title: el.display_name,
+                var response = {
+                    results: {}
+                };
+                results = Object.values(res).filter(el => el.category == 'boundary').map((el, ind) => ({
+                    name: el.display_name,
+                    value: el.place_id,
+                    text: el.display_name,
                     bbox: el.boundingbox,
-                    geojson: el.geojson,
                     lat: el.lat,
                     lon: el.lon,
                 }));
+                response.results = results;
                 return response;
             },
         },
-        onSelect: function (result, response) {
-            // console.log(result);
-            // console.log(response);
-            let bbox = result.bbox;
-            map.fitBounds([[bbox[0], bbox[2]], [bbox[1], bbox[3]]]);
-            searchLayer?.remove();
-            searchLayer = L.geoJSON(result.geojson).addTo(map);
-            queryGeoJson(result);
-        }
+        onChange: changedValue
     });
 
+async function changedValue(value, text, choice) {
+    // console.log(result);
+    console.log(value);
+    console.log(text);
+    console.log(choice);
+
+    let res = await fetch(`https://nominatim.openstreetmap.org/details.php?place_id=${value}&format=json&polygon_geojson=1`);
+    let result = await res.json();
+    console.log(result);
+    let bbox = result.boundingbox;
+    searchLayer = L.geoJSON(result.geometry).addTo(map);
+    map.fitBounds(searchLayer.getBounds());
+    queryGeoJson(result);
+    document.activeElement.blur();
+}
+$('#searchPrompt').onselect = changedValue;
+
 async function queryGeoJson(result) {
-    res = await fetch('http://localhost:9000/geojson',{
+    res = await fetch('http://localhost:9000/geojson', {
         method: 'POST',
         body: JSON.stringify({
-            "geojson": result.geojson
+            "geojson": result.geometry
         })
     });
     obj = await res.json();
-    // console.log(obj);
-    thePopup?.remove();
-    thePopup = undefined;
-    thePopup = L.popup()
-        .setLatLng([result.lat, result.lon])
-        .setContent(`<p>Mean: ${obj.mean[0]}</p>`)
-        .addTo(map);
+    bindPopup(searchLayer, obj.mean[0]);
 }

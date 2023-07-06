@@ -64,22 +64,22 @@ img.leaflet-tile {
     z-index: 500;
     top: 10px;
     left: 50px;
-    width: 300px;
+    width: 280px;
 }
 
-#search input {
+#search .selection {
     border: #bbb 2px solid;
     height: 35px;
-    width: 220px;
+    width: 100%;
     padding-left: 10px;
 }
 
 #search i {
+    position: absolute;
+    right: 10px;
     font-size: 14px;
-    margin-left: -35px;
     opacity: 0.4;
-    padding-left: 5px;
-    margin-top: 10px;
+    margin-top: 12px;
 }
 
 input[type="file"] {
