@@ -2,6 +2,11 @@ body {
     margin: 0;
 }
 
+.leaflet-border {
+    border: 2px #ccc solid;
+    border-radius: 2px;
+}
+
 #map {
     height: calc(100vh - 4px);
 }
@@ -19,6 +24,7 @@ body {
 
 #legend-labels {
     display: flex;
+    flex-direction: row;
     justify-content: space-between;
     text-shadow:
         1px 0px 1px white,
@@ -34,7 +40,6 @@ body {
 #legend-ramp {
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, rgb(215 25 28), rgb(255 255 192), rgb(26 150 65));
     box-shadow:
         1px 0px 1px white,
         -1px 0px 1px white,
@@ -70,6 +75,7 @@ img.leaflet-tile {
 #search .text {
     overflow: hidden;
     max-height: 100%; 
+    
 }
 
 #search .selection {
@@ -79,12 +85,16 @@ img.leaflet-tile {
     padding-left: 10px;
 }
 
+#search .dropdown.icon {
+    display: none;
+}
+
 #search i {
     position: absolute;
     right: 10px;
     font-size: 14px;
     opacity: 0.4;
-    margin-top: 12px;
+    top: 12px;
 }
 
 .leaflet-control-layers-base {
@@ -116,4 +126,47 @@ span:has(.checked) {
 
 input[type="file"] {
     display: none;
+}
+
+#layersDiv {
+    position: fixed;
+    top: 57px;
+    right: 10px;
+    z-index: 400;
+    background-color: white;
+    padding: 5px;;
+}
+
+#layersIcon {
+    font-size: 20px;
+    color: black;
+    background-color: white;
+    padding: 5px;
+}
+
+#layersDiv > .ui.cards {
+    flex-direction: column;
+}
+
+#layersList {
+    display: flex;
+    flex-direction: column;
+}
+
+#layersList > .item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    transition: 0.2s;
+    text-shadow: 1px 1px 4px #bbb;
+    background-color: white;
+    cursor: pointer;
+}
+
+#layersList > .item:hover {
+    text-shadow: 1px 1px 0px #aaa;
+}
+
+#layersList > .item.active {
+    background-color: #ccc;
 }

@@ -2,28 +2,31 @@ library(pacman)
 pacman::p_load(
   plumber,
   terra,
+  sf,
   glue,
   geojsonsf
 )
-# Filters
 
+rasters = list(
+  gedi_carbon = terra::rast('gedi_carbon.tif')
+)
+
+
+# Filters
 #* @filter cors
 cors <- function(res) {
     res$setHeader("Access-Control-Allow-Origin", "*")
     plumber::forward()
 }
 
-r = terra::rast('output.tif')
-
 
 # Define the API endpoints
-
 #* Apply function
 #* Example usage: http://localhost:9000/api?bbox=6,8,7,9&layer=carbon
 #* @param bbox Bounding box
 #* @param layer The layer name
 #* @get /api
-api <- function(bbox, layer) {
+api <- function(bbox, layer = 'gedi_carbon') {
   # Retrieve the 'bbox' parameter from the query string
   
   # Split the parameter into a numeric vector
@@ -32,9 +35,9 @@ api <- function(bbox, layer) {
   line = glue::glue("LINESTRING({bbox[1]} {bbox[2]}, {bbox[3]} {bbox[4]})")
   lineVect = terra::vect(line)
   crs(lineVect) = 'epsg:4326'
-  trans = terra::project(lineVect, 'epsg:6933')
+  trans = terra::project(lineVect, crs(rasters[[layer]]))
   bbox = terra::ext(trans)
-  clip = terra::crop(r, bbox)
+  clip = terra::crop(rasters[[layer]], bbox)
   mean = terra::global(clip, fun='mean', na.rm=T)
   
   # Return a JSON response
@@ -49,7 +52,7 @@ api <- function(bbox, layer) {
 #* @param wkt The wkt from the polygon
 #* @param layer The layer name
 #* @get /polygon
-polygon <- function(wkt, layer) {
+polygon <- function(wkt, layer = 'gedi_carbon') {
     # Create a terra polygon from the WKT
     poly <- terra::vect(wkt)
     
@@ -57,10 +60,10 @@ polygon <- function(wkt, layer) {
     crs(poly) <- '+init=epsg:4326'
     
     # Reproject the polygon to CRS 6933
-    poly <- project(poly, "+init=epsg:6933")
+    poly <- project(poly, crs(rasters[[layer]]))
     
     # Crop the raster 'r' using the polygon
-    cropped_raster <- crop(r, poly)
+    cropped_raster <- crop(rasters[[layer]], poly)
     masked_raster <- mask(cropped_raster, poly)
     
     # Calculate the global mean
@@ -76,16 +79,16 @@ polygon <- function(wkt, layer) {
 #* Example usage: http://localhost:9000/
 #* @param geojson:[geojson] The geojson from the polygon
 #* @post /geojson
-geojson <- function(req, geojson) {
+geojson <- function(req, geojson, layer = 'gedi_carbon') {
     # Create a terra polygon from the WKT
 
     poly <- sf::st_read(req$body)
     
     # Reproject the polygon to CRS 6933
-    poly <- sf::st_transform(poly, crs=6933)
+    poly <- sf::st_transform(poly, crs=crs(rasters[[layer]]))
     
     # Crop the raster 'r' using the polygon
-    cropped_raster <- crop(r, poly)
+    cropped_raster <- crop(rasters[[layer]], poly)
     masked_raster <- mask(cropped_raster, poly)
     
     # Calculate the global mean
@@ -99,7 +102,7 @@ geojson <- function(req, geojson) {
 
 #* @param file:[file]
 #* @post /upload
-function(file) {
+function(file, layer = 'gedi_carbon') {
   tmp = paste0(tempfile(), '.zip')
   writeBin(file[[names(file)]], tmp)
 
@@ -113,8 +116,8 @@ function(file) {
     unlink(tempdir, recursive = T)
   })
   
-  transformed = sf::st_transform(shp, crs=6933)
-  clippedRaster = terra::crop(r, transformed)
+  transformed = sf::st_transform(shp, crs=crs(rasters[[layer]]))
+  clippedRaster = terra::crop(rasters[[layer]], transformed)
   maskedRaster = terra::mask(clippedRaster, transformed)
   mean = terra::global(maskedRaster, fun='mean', na.rm=T)
   # Return a JSON response

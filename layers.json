@@ -1,0 +1,40 @@
+{
+    "gedi_carbon": {
+        "title": "GEDI 4A Carbon",
+        "location": "tms/gedi_carbon",
+        "max_zoom": 7,
+        "bounds": [
+            [
+                23.115671759,
+                -128.589211618
+            ],
+            [
+                51.876925960,
+                -68.724066390
+            ]
+        ],
+        "legend": {
+            "colors": "linear-gradient(90deg, rgb(215 25 28), rgb(255 255 192), rgb(26 150 65))",
+            "labels": [0, 500, 1000]
+        }
+    },
+    "gedi_carbon2": {
+        "title": "GEDI 4B Blue",
+        "location": "tms/gedi_carbon_blue",
+        "max_zoom": 7,
+        "bounds": [
+            [
+                23.115671759,
+                -128.589211618
+            ],
+            [
+                51.876925960,
+                -68.724066390
+            ]
+        ],
+        "legend": {
+            "colors": "linear-gradient(90deg, rgb(215 25 28), rgb(255 255 192), rgb(26 65 150))",
+            "labels": [-1, 500, 1000]
+        }
+    }
+}
