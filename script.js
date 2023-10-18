@@ -9,9 +9,10 @@ Vue.createApp({
         const overleafLayersRef = ref();
 
         onMounted(async () => {
-            let initLayer = 'gedi_carbon';
             const layers = await (await fetch('layers.json')).json();
             layersRef.value = layers;
+            const initLayer = Object.keys(layers)[0];
+            console.log(initLayer);
             activeLayer.value = initLayer;
 
             let osm = L.tileLayer(
@@ -69,11 +70,11 @@ Vue.createApp({
                     url: "https://landsat.arcgis.com/arcgis/rest/services/Landsat/PS/ImageServer",
                     pane: 'basePane',
                     attribution: "United States Geological Survey (USGS), National Aeronautics and Space Administration (NASA)"
-                }).addTo(map);
+                });
 
 
             var baseMaps = {
-                "OpenStreetMap": osm,
+                "OpenStreetMap": osm.addTo(map),
                 "Landsat": landsat
             };
 
@@ -134,7 +135,7 @@ Vue.createApp({
                 let res, obj;
                 switch (event.shape) {
                     case 'Rectangle':
-                        res = await fetch(`http://localhost:9000/api?bbox=${overlay.getBounds().toBBoxString()}&layer=carbon`)
+                        res = await fetch(`http://localhost:9000/api?bbox=${overlay.getBounds().toBBoxString()}&layer=${activeLayer.value}`)
                         obj = await res.json();
                         bindPopup(overlay, obj.mean[0]);
                         break;
@@ -143,7 +144,8 @@ Vue.createApp({
                         //console.log(event);
                         let wkt = convertLatLngToWKT(event.layer.getLatLngs()[0]);
                         res = await fetch(`http://localhost:9000/polygon?${new URLSearchParams({
-                            wkt: wkt
+                            wkt: wkt,
+                            layer: activeLayer.value
                         })
                             }`);
                         obj = await res.json();
@@ -166,6 +168,7 @@ Vue.createApp({
                         let file = shapefile.files[0];
                         const formData = new FormData();
                         formData.append('file', file);
+                        formData.append('layer', activeLayer.value);
                         const response = await fetch('http://localhost:9000/upload', {
                             method: 'POST',
                             body: formData

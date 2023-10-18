@@ -8,7 +8,8 @@ pacman::p_load(
 )
 
 rasters = list(
-  gedi_carbon = terra::rast('gedi_carbon.tif')
+  gedi_carbon = terra::rast('gedi_carbon.tif'),
+  gedi_carbon2 = terra::rast('gedi_carbon.tif')
 )
 
 
@@ -27,6 +28,7 @@ cors <- function(res) {
 #* @param layer The layer name
 #* @get /api
 api <- function(bbox, layer = 'gedi_carbon') {
+  message(layer)
   # Retrieve the 'bbox' parameter from the query string
   
   # Split the parameter into a numeric vector
@@ -53,6 +55,7 @@ api <- function(bbox, layer = 'gedi_carbon') {
 #* @param layer The layer name
 #* @get /polygon
 polygon <- function(wkt, layer = 'gedi_carbon') {
+  message(layer)
     # Create a terra polygon from the WKT
     poly <- terra::vect(wkt)
     
@@ -103,6 +106,7 @@ geojson <- function(req, geojson, layer = 'gedi_carbon') {
 #* @param file:[file]
 #* @post /upload
 function(file, layer = 'gedi_carbon') {
+  message(layer)
   tmp = paste0(tempfile(), '.zip')
   writeBin(file[[names(file)]], tmp)
 
