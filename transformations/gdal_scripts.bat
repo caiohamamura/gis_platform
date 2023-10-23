@@ -1,20 +1,20 @@
 @REM Save current path to use later within .bat
-$env:GIS_PLATFORM_PATH = ${PWD}.Path
+cmd
+SET GIS_PLATFORM_PATH=%CD%
 
 @REM ##########################################
 @REM # MANUAL STEP: find and open OSGeo4W.bat
 @REM ##########################################
+"C:\Program Files\QGIS 3.32.3\osgeo4w.bat"
 
-
-@REM Move to the base directory of gis_platform
-SET GIS_PLATFORM_PATH = %USERPROFILE%\gis_platform
-SET INPUT_FILE=server/gedi_carbon.tif
 
 pushd %GIS_PLATFORM_PATH%
 @REM This is a comment...
-@REM gdal_translate -ot Float32 -co COMPRESS=LZW -projwin -12406327 5765229 -6630352 2870572 "%GEDI_PATH%" server/output.tif
 
-gdaldem color-relief -of vrt -alpha server/gedi_carbon.tif transformations/colors.txt transformations/colorized.vrt
+@REM Move to the base directory of gis_platform
+SET FILE_NAME=gedi_carbon
+SET INPUT_FILE=server/%FILE_NAME%.tif
 
-gdal2tiles --zoom=1-6 -w leaflet -r average -d -s EPSG:6933 --xyz --processes 3 -n transformations/colorized.vrt ./tms/gedi_carbon/
-gdal2tiles --zoom=7 -w leaflet -r near -d -s EPSG:6933 --xyz --processes 3 -n transformations/colorized.vrt ./tms/gedi_carbon/
+gdaldem color-relief -of vrt -alpha %INPUT_FILE% transformations/colors.txt transformations/colorized.vrt
+gdal2tiles --zoom=1-12 -w leaflet -r average -d -s EPSG:6933 --xyz --processes 3 -n transformations/colorized.vrt ./tms/%FILE_NAME%/
+gdal2tiles --zoom=13 -w leaflet -r near -d -s EPSG:6933 --xyz --processes 3 -n transformations/colorized.vrt ./tms/%FILE_NAME%/
