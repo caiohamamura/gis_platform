@@ -7,6 +7,7 @@ Vue.createApp({
         const layersRef = ref();
         const mapRef = ref();
         const overleafLayersRef = ref();
+        const searchLayer = ref();
 
         onMounted(async () => {
             const layers = await (await fetch('layers.json')).json();
@@ -187,6 +188,7 @@ Vue.createApp({
                 className: 'fas fa-remove font-awesome-toolbar',
                 title: 'Clear all layers',
                 onClick: () => {
+                    searchLayer.value?.remove();
                     for (let layerIndex = 0; layerIndex < overlays.length; layerIndex++) {
                         overlays[layerIndex]?.remove();
                         delete overlays[layerIndex];
@@ -234,7 +236,6 @@ Vue.createApp({
             // }
 
             let results = [];
-            let searchLayer;
 
             $('#searchPrompt')
                 .dropdown({
@@ -272,8 +273,9 @@ Vue.createApp({
                 let result = await res.json();
                 console.log(result);
                 let bbox = result.boundingbox;
-                searchLayer = L.geoJSON(result.geometry).addTo(map);
-                map.fitBounds(searchLayer.getBounds());
+                searchLayer.value?.remove();
+                searchLayer.value = L.geoJSON(result.geometry).addTo(map);
+                map.fitBounds(searchLayer.value.getBounds());
                 queryGeoJson(result);
                 document.activeElement.blur();
             }
@@ -287,7 +289,7 @@ Vue.createApp({
                     })
                 });
                 obj = await res.json();
-                bindPopup(searchLayer, obj.mean[0]);
+                bindPopup(searchLayer.value, obj.mean[0]);
             }
 
             map.on('baselayerchange', function (e) {
@@ -305,9 +307,9 @@ Vue.createApp({
                 overleafLayersRef.value?.[layer]?.addTo(mapRef.value);
                 activeLayer.value = layer;
             } else {
-                activeLayer.value = ''; 
+                activeLayer.value = '';
             }
-            
+
         }
 
         const expandLayers = ref(true);
