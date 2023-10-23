@@ -3,6 +3,7 @@
 const { ref, onCreated, onMounted } = Vue;
 Vue.createApp({
     setup() {
+        const activeBaseLayer = ref();
         const activeLayer = ref();
         const layersRef = ref();
         const mapRef = ref();
@@ -16,18 +17,6 @@ Vue.createApp({
             console.log(initLayer);
             activeLayer.value = initLayer;
 
-            let osm = L.tileLayer(
-                'http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-                minZoom: 0,
-                maxZoom: 18,
-            });
-
-
-
-
-
-
             let createArrayUpToIndex = (index) => Array.from(Array(index + 1).keys());
 
             let overleafLayers = {};
@@ -35,7 +24,7 @@ Vue.createApp({
 
             for (const l in layers) {
                 const layer = layers[l];
-                overleafLayers[l] =
+                lyr =
                     L.tileLayer(
                         `${layers[l].location}/{z}/{x}/{y}.png`,
                         {
@@ -48,44 +37,102 @@ Vue.createApp({
                             bounds: layer.bounds,
                         }
                     );
+                lyr.addEventListener('add', function () {
+                    console.log(Array.from(document.querySelectorAll('span:has(span)')).filter(e => e.innerHTML.match(activeBaseLayer.value))[0]);
+                    let checked = document.querySelector('.leaflet-left span.checked');
+                    setTimeout(
+                        function () {
+                            checked.classList.add('checked')
+                        },
+                        0
+                    );
+                    activeLayer.value = l;
+                });
+                overleafLayers[l] = lyr;
             }
 
             overleafLayersRef.value = overleafLayers;
 
 
 
-            map = L.map('map', {
-                crs: L.CRS.EPSG3857,
-                pmIgnore: false,
-                layers: [overleafLayers['gedi_carbon']],
-                zoomControl: false,
-            }).setView([40, -90], 3);
-
-            mapRef.value = map;
-
-            map.createPane('basePane');
-            map.getPane('basePane').style.zIndex = 199;
-
+            let osm = L.tileLayer(
+                'http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+                minZoom: 0,
+                maxZoom: 18,
+            });
             let landsat = L.esri
                 .imageMapLayer({
                     url: "https://landsat.arcgis.com/arcgis/rest/services/Landsat/PS/ImageServer",
                     pane: 'basePane',
                     attribution: "United States Geological Survey (USGS), National Aeronautics and Space Administration (NASA)"
                 });
-
-
             var baseMaps = {
-                "OpenStreetMap": osm.addTo(map),
+                "OpenStreetMap": osm,
                 "Landsat": landsat
             };
+
+            for (let k in baseMaps) {
+                let layer = baseMaps[k];
+                layer.addEventListener('add', function () {
+                    if (activeLayer.value in overleafLayers) {
+                        console.log(overleafLayers[activeLayer.value]);
+                        overleafLayers[activeLayer.value]?.setZIndex(101);
+                        let checked = document.querySelector('.leaflet-right span.checked');
+                    setTimeout(
+                        function () {
+                            checked.classList.add('checked');
+                        },
+                        0
+                    );
+                    }
+                })
+            }
+
+            activeBaseLayer.value = 'OpenStreetMap';
+            map = L.map('map', {
+                crs: L.CRS.EPSG3857,
+                pmIgnore: false,
+                layers: [
+                ],
+                zoomControl: false,
+            }).setView([40, -90], 3);
+
+            mapRef.value = map;
+            baseMaps[activeBaseLayer.value].addTo(map);
+            overleafLayers[activeLayer.value].addTo(map);
+
+            map.createPane('basePane');
+            map.getPane('basePane').style.zIndex = 199;
 
             // Allow drawing rectangle
             let overlays = [];
 
-            var layerControl = L.control.layers(baseMaps, overleafLayers, options = {
+
+            var layerControl = L.control.layers(baseMaps, {}, options = {
                 "collapsed": false,
+                "autoZIndex": false,
                 position: 'topleft'
             }).addTo(map);
+
+
+            let overleafLayersTitle = {};
+            console.log(overleafLayers);
+            for (let k in overleafLayers) {
+                const layer = layersRef.value[k];
+                console.log(k);
+                overleafLayersTitle[layer.title] = overleafLayers[k];
+            }
+            console.log(overleafLayersTitle);
+            let layerControl2 = L.control.layers(overleafLayersTitle, {}, options = {
+                "collapsed": false,
+                "autoZIndex": true,
+                position: 'topright'
+            }).addTo(map);
+
+
+
+
             var zoomControl = L.control.zoom().addTo(map);
 
 
@@ -93,13 +140,11 @@ Vue.createApp({
             // Get the overlay container element
             const overlayContainer = layerControl.getContainer();
 
-            // Get all the overlay input elements
-            const overlayInputs = overlayContainer.querySelectorAll('input[type="checkbox"]');
-
-
-
             L.control.scale().addTo(map);
             layerControl._baseLayersList.querySelector('label:nth-child(1)>span>span').classList.add('checked');
+            layerControl2._baseLayersList.querySelector('label:nth-child(1)>span>span').classList.add('checked');
+
+
 
             map.pm.addControls({
                 position: 'topleft',
@@ -301,22 +346,11 @@ Vue.createApp({
 
 
 
-        function setActiveLayer(layer) {
-            overleafLayersRef.value?.[activeLayer.value]?.remove();
-            if (layer != activeLayer.value) {
-                overleafLayersRef.value?.[layer]?.addTo(mapRef.value);
-                activeLayer.value = layer;
-            } else {
-                activeLayer.value = '';
-            }
 
-        }
-
-        const expandLayers = ref(true);
-
+        const expandLayers = ref(false);
         return {
-            setActiveLayer,
             activeLayer,
+            activeBaseLayer,
             expandLayers,
             overleafLayersRef,
             layersRef,

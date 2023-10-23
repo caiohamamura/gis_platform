@@ -107,34 +107,13 @@ img.leaflet-tile {
     padding: 5px;
 }
 
-.leaflet-control-layers-base>label:not(:first-child) {
-    border-left: 1px solid #ccc;
-}
 
-.leaflet-control-layers-overlays,
-.leaflet-control-layers-separator {
-    display: none;
-}
-
-input.leaflet-control-layers-selector {
-    display: none;
-}
-
-span:has(.checked) {
+.leaflet-left .leaflet-control-layers-base>label>span:has(.checked) {
     font-weight: 600;
 }
 
 input[type="file"] {
     display: none;
-}
-
-#layersDiv {
-    position: fixed;
-    top: 57px;
-    right: 10px;
-    z-index: 400;
-    background-color: white;
-    padding: 5px;;
 }
 
 #layersIcon {
@@ -148,25 +127,52 @@ input[type="file"] {
     flex-direction: column;
 }
 
-#layersList {
-    display: flex;
-    flex-direction: column;
+
+.leaflet-top.leaflet-right {
+    padding-top: 48px;
 }
 
-#layersList > .item {
+.leaflet-right .leaflet-control-layers-base {
     display: flex;
-    align-items: center;
-    padding: 10px;
+    align-items: stretch;
     transition: 0.2s;
     text-shadow: 1px 1px 4px #bbb;
     background-color: white;
+    flex-direction: column;
+}
+
+.leaflet-right .leaflet-control-layers-base label {
+    font-size: 14px;
+    padding: 10px;
+    text-shadow: 1px 1px 4px #bbb;
     cursor: pointer;
 }
 
-#layersList > .item:hover {
+
+
+.leaflet-right .leaflet-control-layers-base label:hover  {
     text-shadow: 1px 1px 0px #aaa;
 }
 
-#layersList > .item.active {
+.leaflet-right .leaflet-control-layers-base label:has(span.checked) {
     background-color: #ccc;
+    font-weight: normal !important;
+}
+
+.leaflet-control-layers-base input[type=radio] {
+    display: none;
+    
+}
+
+.leaflet-right .leaflet-control-layers-separator {
+    display: none;
+}
+
+
+.leaflet-layer:nth-child(2) {
+    z-index:100 !important;
+}
+
+.leaflet-left .leaflet-control-layers-base>label:not(:first-child) {
+    border-left: 1px solid #ccc;
 }

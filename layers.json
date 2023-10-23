@@ -34,7 +34,7 @@
         ],
         "legend": {
             "colors": "linear-gradient(90deg, rgb(215 25 28), rgb(255 255 192), rgb(26 65 150))",
-            "labels": [-1, 500, 1000]
+            "labels": [0, 200, 500]
         }
     }
 }
