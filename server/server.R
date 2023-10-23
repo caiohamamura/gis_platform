@@ -107,17 +107,17 @@ geojson <- function(req, geojson, layer = 'gedi_carbon') {
 #* @post /upload
 function(file, layer = 'gedi_carbon') {
   message(layer)
-  tmp = paste0(tempfile(), '.zip')
+  tmp = tempfile(fileext = '.zip')
   writeBin(file[[names(file)]], tmp)
 
   tempdir = dirname(tmp)
-  unzip(tmp, exdir=tempdir)
+  unzip(tmp, exdir = tempdir)
 
-  shp = file.path(tempdir, list.files(tempdir, pattern='*.shp')[1])
+  shp = file.path(tempdir, list.files(tempdir, pattern = '*.shp')[1])
   shp = sf::st_read(shp)
   
   on.exit({
-    unlink(tempdir, recursive = T)
+    unlink(file.path(tempdir, list.files(tempdir)))
   })
   
   transformed = sf::st_transform(shp, crs=crs(rasters[[layer]]))
