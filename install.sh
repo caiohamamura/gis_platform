@@ -5,7 +5,7 @@ cd gis_platform
 # Install nginx (serves the files to the web)
 sudo apt install nginx
 
-# Start nginx, to stop run `nginx -s stop`
+# Start nginx, to stop run `sudo service nginx stop`
 sudo nginx -p . -c nginx.conf
 
 
