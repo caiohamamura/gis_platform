@@ -1,11 +1,8 @@
-library(pacman)
-pacman::p_load(
-  plumber,
-  terra,
-  sf,
-  glue,
-  geojsonsf
-)
+library(plumber)
+library(terra)
+library(sf)
+library(glue)
+library(geojsonsf)
 
 rasters = list(
   gedi_carbon = terra::rast('gedi_carbon.tif'),

@@ -1,4 +1,4 @@
-pacman::p_load(plumber)
+library(plumber)
 
 # 'plumber.R' is the location of the file shown above
 pr("server/server.R") %>%
