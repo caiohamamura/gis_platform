@@ -14,7 +14,7 @@ Vue.createApp({
             const layers = await (await fetch('layers.json')).json();
             layersRef.value = layers;
             const initLayer = Object.keys(layers)[0];
-            console.log(initLayer);
+            // console.log(initLayer);
             activeLayer.value = initLayer;
 
             let createArrayUpToIndex = (index) => Array.from(Array(index + 1).keys());
@@ -38,11 +38,11 @@ Vue.createApp({
                         }
                     );
                 lyr.addEventListener('add', function () {
-                    console.log(Array.from(document.querySelectorAll('span:has(span)')).filter(e => e.innerHTML.match(activeBaseLayer.value))[0]);
+                    // console.log(Array.from(document.querySelectorAll('span:has(span)')).filter(e => e.innerHTML.match(activeBaseLayer.value))[0]);
                     let checked = document.querySelector('.leaflet-left span.checked');
                     setTimeout(
                         function () {
-                            checked.classList.add('checked')
+                            checked?.classList.add('checked')
                         },
                         0
                     );
@@ -76,15 +76,15 @@ Vue.createApp({
                 let layer = baseMaps[k];
                 layer.addEventListener('add', function () {
                     if (activeLayer.value in overleafLayers) {
-                        console.log(overleafLayers[activeLayer.value]);
+                        // console.log(overleafLayers[activeLayer.value]);
                         overleafLayers[activeLayer.value]?.setZIndex(101);
                         let checked = document.querySelector('.leaflet-right span.checked');
-                    setTimeout(
-                        function () {
-                            checked.classList.add('checked');
-                        },
-                        0
-                    );
+                        setTimeout(
+                            function () {
+                                checked?.classList.add('checked');
+                            },
+                            0
+                        );
                     }
                 })
             }
@@ -117,13 +117,13 @@ Vue.createApp({
 
 
             let overleafLayersTitle = {};
-            console.log(overleafLayers);
+            // console.log(overleafLayers);
             for (let k in overleafLayers) {
                 const layer = layersRef.value[k];
-                console.log(k);
+                // console.log(k);
                 overleafLayersTitle[layer.title] = overleafLayers[k];
             }
-            console.log(overleafLayersTitle);
+            // console.log(overleafLayersTitle);
             let layerControl2 = L.control.layers(overleafLayersTitle, {}, options = {
                 "collapsed": false,
                 "autoZIndex": true,
@@ -181,7 +181,7 @@ Vue.createApp({
                 let res, obj;
                 switch (event.shape) {
                     case 'Rectangle':
-                        res = await fetch(`http://localhost:9000/api?bbox=${overlay.getBounds().toBBoxString()}&layer=${activeLayer.value}`)
+                        res = await fetch(`${location.href.replace(':8080/', '')}:9000/api?bbox=${overlay.getBounds().toBBoxString()}&layer=${activeLayer.value}`)
                         obj = await res.json();
                         bindPopup(overlay, obj.mean[0]);
                         break;
@@ -189,7 +189,7 @@ Vue.createApp({
                         //console.log('Polygon');
                         //console.log(event);
                         let wkt = convertLatLngToWKT(event.layer.getLatLngs()[0]);
-                        res = await fetch(`http://localhost:9000/polygon?${new URLSearchParams({
+                        res = await fetch(`${location.href.replace(':8080/', '')}:9000/polygon?${new URLSearchParams({
                             wkt: wkt,
                             layer: activeLayer.value
                         })
@@ -215,7 +215,7 @@ Vue.createApp({
                         const formData = new FormData();
                         formData.append('file', file);
                         formData.append('layer', activeLayer.value);
-                        const response = await fetch('http://localhost:9000/upload', {
+                        const response = await fetch(`${location.href.replace(':8080/', '')}:9000/upload`, {
                             method: 'POST',
                             body: formData
                         });
@@ -310,13 +310,13 @@ Vue.createApp({
 
             async function changedValue(value, text, choice) {
                 // console.log(result);
-                console.log(value);
-                console.log(text);
-                console.log(choice);
+                // console.log(value);
+                // console.log(text);
+                // console.log(choice);
 
                 let res = await fetch(`https://nominatim.openstreetmap.org/details.php?place_id=${value}&format=json&polygon_geojson=1`);
                 let result = await res.json();
-                console.log(result);
+                // console.log(result);
                 let bbox = result.boundingbox;
                 searchLayer.value?.remove();
                 searchLayer.value = L.geoJSON(result.geometry).addTo(map);
@@ -327,7 +327,7 @@ Vue.createApp({
             $('#searchPrompt').onselect = changedValue;
 
             async function queryGeoJson(result) {
-                res = await fetch('http://localhost:9000/geojson', {
+                res = await fetch(`${location.href.replace(':8080/', '')}:9000/geojson`, {
                     method: 'POST',
                     body: JSON.stringify({
                         "geojson": result.geometry
