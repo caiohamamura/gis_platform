@@ -1,6 +1,8 @@
-
-
 const { ref, onCreated, onMounted } = Vue;
+const { createVuetify } = Vuetify
+ 
+const vuetify = createVuetify()
+ 
 Vue.createApp({
     setup() {
         const activeBaseLayer = ref();
@@ -9,6 +11,7 @@ Vue.createApp({
         const mapRef = ref();
         const overleafLayersRef = ref();
         const searchLayer = ref();
+        const opacity = ref(70);
 
         onMounted(async () => {
             const layers = await (await fetch('layers.json')).json();
@@ -40,6 +43,7 @@ Vue.createApp({
                 lyr.addEventListener('add', function () {
                     // console.log(Array.from(document.querySelectorAll('span:has(span)')).filter(e => e.innerHTML.match(activeBaseLayer.value))[0]);
                     let checked = document.querySelector('.leaflet-left span.checked');
+                    lyr.setOpacity(opacity.value / 100.0);
                     setTimeout(
                         function () {
                             checked?.classList.add('checked')
@@ -131,6 +135,10 @@ Vue.createApp({
             }).addTo(map);
 
 
+            let layers2 = document.querySelector('.leaflet-right .leaflet-control-layers-base');
+            let slider = document.querySelector('.v-slider');
+            slider.remove();
+            layers2.append(slider);
 
 
             var zoomControl = L.control.zoom().addTo(map);
@@ -346,6 +354,9 @@ Vue.createApp({
 
 
 
+        Vue.watch(opacity, function() {
+            overleafLayersRef.value[activeLayer.value].setOpacity(opacity.value/100.0);
+        })
 
         const expandLayers = ref(false);
         return {
@@ -355,6 +366,7 @@ Vue.createApp({
             overleafLayersRef,
             layersRef,
             mapRef,
+            opacity,
         };
     }
-}).mount('#app')
+}).use(vuetify).mount('#app')

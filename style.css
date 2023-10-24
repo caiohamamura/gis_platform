@@ -2,21 +2,22 @@ body {
     margin: 0;
 }
 
-.leaflet-border {
-    border: 2px #ccc solid;
-    border-radius: 2px;
-}
 
 #map {
     height: calc(100vh - 4px);
+}
+.leaflet-border {
+    border: 2px #ccc solid;
+    border-radius: 2px;
 }
 
 #legend {
     display: flex;
     flex-direction: column;
     position: fixed;
+    font-size: 16pt;
     height: 30px;
-    width: 25vw;
+    width: 200px;
     right: 10px;
     bottom: 30px;
     z-index: 400;
@@ -176,3 +177,15 @@ input[type="file"] {
 .leaflet-left .leaflet-control-layers-base>label:not(:first-child) {
     border-left: 1px solid #ccc;
 }
+
+.v-slider {
+    position: static;
+    width: 100%;
+    z-index: 9999;
+    padding-right: 12px;
+}
+
+.v-input__details {
+    display: none;
+    grid-area: unset !important;
+} 

@@ -34,6 +34,9 @@
         integrity="sha512-i9mZ/0lnBMdKZjkVQXImtZbWzrhomyyQzXarfT4ki1eD/Bi+rcV4lFyzX52lbRQtqj070JQea4p8QNCMrHzuYg=="
         crossorigin=""></script>
     <script src="https://unpkg.com/vue@3.3.4/dist/vue.global.prod.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vuetify@3.3.22/dist/vuetify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@3.3.22/dist/vuetify.min.js"></script>
+
 </head>
 
 <body>
@@ -54,6 +57,7 @@
             <div id="legend-ramp"
             :style="layersRef?.[activeLayer] ? `background: ${layersRef?.[activeLayer]?.legend.colors}` : 'display: none;'"></div>
         </div>
+        <v-slider v-model="opacity"></v-slider>
 
         <form action="" onsubmit="return false;" id="formShapefile">
             <input type="file" name="shapefile" id="shapefile" accept=".zip">
