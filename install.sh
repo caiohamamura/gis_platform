@@ -6,8 +6,9 @@ cd gis_platform
 sudo apt install nginx
 
 # Start nginx, to stop run `sudo service nginx stop`
-sudo nginx -p . -c nginx.conf
-
+sudo bash -c 'sed "s/PWD/${PWD//\//\\/}/g" nginx.conf > /etc/nginx/sites-available/default'
+sudo chmod 701 ~
+sudo service nginx start
 
 ################
 ## Install R
