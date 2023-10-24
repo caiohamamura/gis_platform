@@ -4,3 +4,8 @@ Description=rserver
 [Service]
 WorkingDirectory=PWD
 ExecStart=Rscript server/runner.R
+Restart=on-failure
+RestartSec=42s
+
+[Install]
+WantedBy=multi-user.target
