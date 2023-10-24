@@ -65,15 +65,12 @@ Vue.createApp({
                 minZoom: 0,
                 maxZoom: 18,
             });
-            let landsat = L.esri
-                .imageMapLayer({
-                    url: "https://landsat.arcgis.com/arcgis/rest/services/Landsat/PS/ImageServer",
-                    pane: 'basePane',
-                    attribution: "United States Geological Survey (USGS), National Aeronautics and Space Administration (NASA)"
-                });
+            let esri = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+            });
             var baseMaps = {
                 "OpenStreetMap": osm,
-                "Landsat": landsat
+                "ESRI": esri
             };
 
             for (let k in baseMaps) {
@@ -101,7 +98,7 @@ Vue.createApp({
                 ],
                 zoomControl: false,
             }).setView([40, -90], 3);
-
+            
             mapRef.value = map;
             baseMaps[activeBaseLayer.value].addTo(map);
             overleafLayers[activeLayer.value].addTo(map);
@@ -119,7 +116,7 @@ Vue.createApp({
                 position: 'topleft'
             }).addTo(map);
 
-
+  
             let overleafLayersTitle = {};
             // console.log(overleafLayers);
             for (let k in overleafLayers) {
@@ -353,7 +350,7 @@ Vue.createApp({
         })
 
 
-
+        
         Vue.watch(opacity, function() {
             overleafLayersRef.value[activeLayer.value].setOpacity(opacity.value/100.0);
         })
