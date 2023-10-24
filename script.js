@@ -69,8 +69,8 @@ Vue.createApp({
                 attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
             });
             var baseMaps = {
+                "ESRI": esri,
                 "OpenStreetMap": osm,
-                "ESRI": esri
             };
 
             for (let k in baseMaps) {
@@ -90,7 +90,7 @@ Vue.createApp({
                 })
             }
 
-            activeBaseLayer.value = 'OpenStreetMap';
+            activeBaseLayer.value = 'ESRI';
             map = L.map('map', {
                 crs: L.CRS.EPSG3857,
                 pmIgnore: false,
