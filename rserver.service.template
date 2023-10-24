@@ -1,0 +1,6 @@
+[Unit]
+Description=rserver
+
+[Service]
+WorkingDirectory=PWD
+ExecStart=Rscript server/runner.R
