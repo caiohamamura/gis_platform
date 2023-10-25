@@ -1,8 +1,8 @@
 const { ref, onCreated, onMounted } = Vue;
 const { createVuetify } = Vuetify
- 
+
 const vuetify = createVuetify()
- 
+
 Vue.createApp({
     setup() {
         const activeBaseLayer = ref();
@@ -10,7 +10,6 @@ Vue.createApp({
         const layersRef = ref();
         const mapRef = ref();
         const overleafLayersRef = ref();
-        const searchLayer = ref();
         const opacity = ref(70);
         let rectangles = [];
         let polygons = [];
@@ -22,7 +21,7 @@ Vue.createApp({
             const layers = await (await fetch('layers.json')).json();
             layersRef.value = layers;
             const initLayer = Object.keys(layers)[0];
-            // console.log(initLayer);
+
             activeLayer.value = initLayer;
 
             let createArrayUpToIndex = (index) => Array.from(Array(index + 1).keys());
@@ -46,7 +45,6 @@ Vue.createApp({
                         }
                     );
                 lyr.addEventListener('add', function () {
-                    // console.log(Array.from(document.querySelectorAll('span:has(span)')).filter(e => e.innerHTML.match(activeBaseLayer.value))[0]);
                     let checked = document.querySelector('.leaflet-left span.checked');
                     lyr.setOpacity(opacity.value / 100.0);
                     setTimeout(
@@ -58,14 +56,14 @@ Vue.createApp({
                     activeLayer.value = l;
 
                     unbindPopups();
-                    for(let rect of rectangles){
-                        handleRectangle(rect, push = false);
+                    for (let rect of rectangles) {
+                        handleRectangle(rect);
                     }
-                    for(let pol of polygons){
-                        handlePolygon(pol, push = false); 
+                    for (let pol of polygons) {
+                        handlePolygon(pol);
                     }
-                    for(let shp of shapes) {
-                        handleShp(shp, push = false);
+                    for (let shp of shapes) {
+                        handleGeoJSON(shp);
                     }
                 });
                 overleafLayers[l] = lyr;
@@ -93,7 +91,6 @@ Vue.createApp({
                 let layer = baseMaps[k];
                 layer.addEventListener('add', function () {
                     if (activeLayer.value in overleafLayers) {
-                        // console.log(overleafLayers[activeLayer.value]);
                         overleafLayers[activeLayer.value]?.setZIndex(101);
                         let checked = document.querySelector('.leaflet-right span.checked');
                         setTimeout(
@@ -114,7 +111,7 @@ Vue.createApp({
                 ],
                 zoomControl: false,
             }).setView([40, -90], 3);
-            
+
             mapRef.value = map;
             baseMaps[activeBaseLayer.value].addTo(map);
             overleafLayers[activeLayer.value].addTo(map);
@@ -129,15 +126,13 @@ Vue.createApp({
                 position: 'topleft'
             }).addTo(map);
 
-  
+
             let overleafLayersTitle = {};
-            // console.log(overleafLayers);
             for (let k in overleafLayers) {
                 const layer = layersRef.value[k];
-                // console.log(k);
                 overleafLayersTitle[layer.title] = overleafLayers[k];
             }
-            // console.log(overleafLayersTitle);
+
             let layerControl2 = L.control.layers(overleafLayersTitle, {}, options = {
                 "collapsed": false,
                 "autoZIndex": true,
@@ -181,13 +176,14 @@ Vue.createApp({
 
 
 
-            function bindPopup(overlay, mean, push = true) {
+            function bindPopup(overlay, mean) {
                 overlay.bindPopup(
                     L.popup({ closeOnClick: false, })
                         .setLatLng(overlay.getBounds().getCenter())
                         .setContent(`<p>Mean: ${mean}</p>`)
                         .addTo(map));
-                if (push) overlays.push(overlay);
+                if (overlays.some(e => e == overlay) == false)
+                    overlays.push(overlay)
                 overlay.on('mouseover', function () {
                     this.openPopup();
                 });
@@ -195,15 +191,12 @@ Vue.createApp({
 
             async function handleDrawEnd(event) {
                 let overlay = event.layer;
-                overlays.push(overlay);
                 let res, obj;
                 switch (event.shape) {
                     case 'Rectangle':
                         await handleRectangle(overlay);
                         break;
                     case 'Polygon':
-                        //console.log('Polygon');
-                        //console.log(event);
                         await handlePolygon(overlay);
                         break;
                 }
@@ -254,7 +247,6 @@ Vue.createApp({
                 }
             }
             function handleClearAll() {
-                searchLayer.value?.remove();
                 for (let layerIndex = 0; layerIndex < overlays.length; layerIndex++) {
                     overlays[layerIndex]?.remove();
                     delete overlays[layerIndex];
@@ -265,28 +257,29 @@ Vue.createApp({
                 polygons = [];
             }
 
-            async function handlePolygon(overlay, push = true) {
+            async function handlePolygon(overlay) {
                 let wkt = convertLatLngToWKT(overlay.getLatLngs()[0]);
                 let res = await fetch(`${location.href.match(/(http:\/\/.*?)(:\d+)?\//)[1]}:9000/polygon?${new URLSearchParams({
                     wkt: wkt,
                     layer: activeLayer.value
                 })}`);
                 let obj = await res.json();
-                if (push) polygons.push(overlay); 
-                // console.log(obj);
-                bindPopup(overlay, obj.mean[0], push);
+                if (polygons.some(e => e == overlay) === false)
+                    polygons.push(overlay);
+                bindPopup(overlay, obj.mean[0]);
             }
 
-            async function handleRectangle(overlay, push=true) {
+            async function handleRectangle(overlay) {
                 let res = await fetch(`${location.href.match(/(http:\/\/.*?)(:\d+)?\//)[1]}:9000/api?bbox=${overlay.getBounds().toBBoxString()}&layer=${activeLayer.value}`);
                 let obj = await res.json();
-                if (push) rectangles.push(overlay);
-                bindPopup(overlay, obj.mean[0], push);
+                if (rectangles.some(e => e === overlay) === false) {
+                    rectangles.push(overlay);
+                }
+                bindPopup(overlay, obj.mean[0]);
             }
 
-            async function handleShp(overlay, push=false) {
-                if (push) shapes.push(overlay);
-                handleGeoJSON(overlay, push=false)
+            async function handleShp(overlay) {
+                handleGeoJSON(overlay)
             }
 
             function convertLatLngToWKT(latlngList, srid) {
@@ -308,23 +301,6 @@ Vue.createApp({
                 return sridOut + wktString;
             }
 
-            // let timeoutAutocomplete;
-            // searchPrompt.onkeydown = function () {
-            //     if (timeoutAutocomplete)
-            //         clearTimeout(timeoutAutocomplete);
-            //     timeoutAutocomplete = setTimeout(getSearchResults, 500);
-            // }
-
-            // async function getSearchResults() {
-            //     let res = await fetch(`https://nominatim.openstreetmap.org/search.php?q=${encodeURIComponent(searchPrompt.value)}&polygon_geojson=0&format=jsonv2`);
-            //     let obj = await res.json();
-            //     let content = obj.map(el => ({
-            //         title: el.display_name
-            //     }));
-
-            //     console.log(obj);
-            // }
-
             let results = [];
 
             $('#searchPrompt')
@@ -334,7 +310,6 @@ Vue.createApp({
                     apiSettings: {
                         url: 'https://nominatim.openstreetmap.org/search.php?q={query}&format=jsonv2',
                         onResponse: function (res) {
-                            // console.log(res);
                             var response = {
                                 results: {}
                             };
@@ -354,32 +329,28 @@ Vue.createApp({
                 });
 
             async function changedValue(value, text, choice) {
-                // console.log(result);
-                // console.log(value);
-                // console.log(text);
-                // console.log(choice);
-
                 let res = await fetch(`https://nominatim.openstreetmap.org/details.php?place_id=${value}&format=json&polygon_geojson=1`);
                 let result = await res.json();
-                // console.log(result);
+
                 let bbox = result.boundingbox;
-                searchLayer.value?.remove();
-                searchLayer.value = L.geoJSON(result.geometry).addTo(map);
-                map.fitBounds(searchLayer.value.getBounds());
-                handleGeoJSON(searchLayer.value);
+                let layer = L.geoJSON(result.geometry).addTo(map);
+                map.fitBounds(layer.getBounds());
+                handleGeoJSON(layer);
                 document.activeElement.blur();
             }
             $('#searchPrompt').onselect = changedValue;
 
-            async function handleGeoJSON(layer, push = true) {
-                res = await fetch(`${location.href.match(/(http:\/\/.*?)(:\d+)?\//)[1]}:9000/geojson?layer=${activeLayer.value}`, {
+            async function handleGeoJSON(layer) {
+                let res = await fetch(`${location.href.match(/(http:\/\/.*?)(:\d+)?\//)[1]}:9000/geojson?layer=${activeLayer.value}`, {
                     method: 'POST',
                     body: JSON.stringify({
                         "geojson": layer.toGeoJSON()
                     })
                 });
-                obj = await res.json();
-                bindPopup(layer, obj.mean[0], push);
+                let obj = await res.json();
+                if (shapes.some(e => e == layer) === false)
+                    shapes.push(layer);
+                bindPopup(layer, obj.mean[0]);
             }
 
             map.on('baselayerchange', function (e) {
@@ -390,9 +361,9 @@ Vue.createApp({
         })
 
 
-        
-        Vue.watch(opacity, function() {
-            overleafLayersRef.value[activeLayer.value].setOpacity(opacity.value/100.0);
+
+        Vue.watch(opacity, function () {
+            overleafLayersRef.value[activeLayer.value].setOpacity(opacity.value / 100.0);
         })
 
         const expandLayers = ref(false);
