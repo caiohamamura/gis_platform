@@ -119,13 +119,9 @@ function(file, layer = 'gedi_carbon') {
     unlink(file.path(tempdir, list.files(tempdir)))
   })
   
-  message('ok1')
   transformed = sf::st_transform(shp, crs=crs(rasters[[layer]]))
-  message('ok2')
   clippedRaster = terra::crop(rasters[[layer]], transformed)
-  message('ok3')
   maskedRaster = terra::mask(clippedRaster, transformed)
-  message('ok4')
   mean = terra::global(maskedRaster, fun='mean', na.rm=T)
   message('ok5')
   # Return a JSON response
@@ -134,7 +130,6 @@ function(file, layer = 'gedi_carbon') {
     geojson = sf_geojson(sf::st_transform(shp, crs='epsg:4326'))
   )
 
-  unlink(tempdir, recursive=T)
   return(response)  
 }
 
