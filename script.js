@@ -65,7 +65,7 @@ Vue.createApp({
                         handlePolygon(pol, push = false); 
                     }
                     for(let shp of shapes) {
-                        handleShape(shp, push = false);
+                        handleShp(shp, push = false);
                     }
                 });
                 overleafLayers[l] = lyr;
@@ -284,16 +284,9 @@ Vue.createApp({
                 bindPopup(overlay, obj.mean[0], push);
             }
 
-            async function handleShape(overlay, push=false) {
-                console.log(overlay);
-                let res = await fetch(`${location.href.match(/(http:\/\/.*?)(:\d+)?\//)[1]}:9000/geojson?${new URLSearchParams({
-                    geojson: JSON.stringify(overlay.toGeoJSON()),
-                    layer: activeLayer.value
-                })}`);
-                let obj = await res.json();
+            async function handleShp(overlay, push=false) {
                 if (push) shapes.push(overlay);
-                console.log(obj);
-                bindPopup(overlay, obj.mean[0], push);
+                handleGeoJSON(overlay, push=false)
             }
 
             function convertLatLngToWKT(latlngList, srid) {
@@ -373,20 +366,20 @@ Vue.createApp({
                 searchLayer.value?.remove();
                 searchLayer.value = L.geoJSON(result.geometry).addTo(map);
                 map.fitBounds(searchLayer.value.getBounds());
-                queryGeoJson(result);
+                handleGeoJSON(searchLayer.value);
                 document.activeElement.blur();
             }
             $('#searchPrompt').onselect = changedValue;
 
-            async function queryGeoJson(result) {
-                res = await fetch(`${location.href.match(/(http:\/\/.*?)(:\d+)?\//)[1]}:9000/geojson`, {
+            async function handleGeoJSON(layer, push = true) {
+                res = await fetch(`${location.href.match(/(http:\/\/.*?)(:\d+)?\//)[1]}:9000/geojson?layer=${activeLayer.value}`, {
                     method: 'POST',
                     body: JSON.stringify({
-                        "geojson": result.geometry
+                        "geojson": layer.toGeoJSON()
                     })
                 });
                 obj = await res.json();
-                bindPopup(searchLayer.value, obj.mean[0]);
+                bindPopup(layer, obj.mean[0], push);
             }
 
             map.on('baselayerchange', function (e) {
