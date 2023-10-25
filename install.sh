@@ -3,19 +3,20 @@ git clone https://github.com/caiohamamura/gis_platform
 cd gis_platform
 
 # Install nginx (serves the files to the web)
+sudo apt update
 sudo apt install nginx -y
 
 # Start nginx, to stop run `sudo service nginx stop`
 sudo bash -c 'sed "s/PWD/${PWD//\//\\/}/g" nginx.conf > /etc/nginx/sites-available/default'
 sudo chmod 701 ~
 sudo systemctl daemon-reload
+sudo systemctl enable nginx
 sudo service nginx start
 
 ################
 ## Install R
 ################
 # update indices
-sudo apt update -qq
 # install two helper packages we need
 sudo apt install --no-install-recommends software-properties-common dirmngr -y
 # add the signing key (by Michael Rutter) for these repos
@@ -41,4 +42,5 @@ sudo apt install r-cran-plumber r-cran-terra r-cran-sf r-cran-glue r-cran-geojso
 ###############
 sudo bash -c 'sed "s/PWD/${PWD//\//\\/}/g" rserver.service.template > /etc/systemd/system/rserver.service'
 sudo systemctl daemon-reload
+sudo systemctl enable rserver 
 sudo service rserver start
