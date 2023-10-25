@@ -77,14 +77,15 @@ polygon <- function(wkt, layer = 'gedi_carbon') {
 
 #* Apply polygon geojson
 #* Example usage: http://localhost:9000/
-#* @param geojson:[geojson] The geojson from the polygon
-#* @post /geojson
+#* @param geojson The geojson from the polygon
+#* @param layer The layer name
+#* @get /geojson
 geojson <- function(req, geojson, layer = 'gedi_carbon') {
     # Create a terra polygon from the WKT
 
-    poly <- sf::st_read(req$body)
+    poly <- sf::st_read(geojson)
     
-    # Reproject the polygon to CRS 6933
+    # Reproject the polygon to raster
     poly <- sf::st_transform(poly, crs=crs(rasters[[layer]]))
     
     # Crop the raster 'r' using the polygon
@@ -117,14 +118,19 @@ function(file, layer = 'gedi_carbon') {
     unlink(file.path(tempdir, list.files(tempdir)))
   })
   
+  message('ok1')
   transformed = sf::st_transform(shp, crs=crs(rasters[[layer]]))
+  message('ok2')
   clippedRaster = terra::crop(rasters[[layer]], transformed)
+  message('ok3')
   maskedRaster = terra::mask(clippedRaster, transformed)
+  message('ok4')
   mean = terra::global(maskedRaster, fun='mean', na.rm=T)
+  message('ok5')
   # Return a JSON response
   response <- list(
     mean = mean$mean,
-    geojson = sf_geojson(shp)
+    geojson = sf_geojson(sf::st_transform(shp, crs='epsg:4326'))
   )
 
   unlink(tempdir, recursive=T)

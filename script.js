@@ -12,6 +12,11 @@ Vue.createApp({
         const overleafLayersRef = ref();
         const searchLayer = ref();
         const opacity = ref(70);
+        let rectangles = [];
+        let polygons = [];
+        let shapes = [];
+        // Allow drawing rectangle
+        let overlays = [];
 
         onMounted(async () => {
             const layers = await (await fetch('layers.json')).json();
@@ -51,6 +56,17 @@ Vue.createApp({
                         0
                     );
                     activeLayer.value = l;
+
+                    unbindPopups();
+                    for(let rect of rectangles){
+                        handleRectangle(rect, push = false);
+                    }
+                    for(let pol of polygons){
+                        handlePolygon(pol, push = false); 
+                    }
+                    for(let shp of shapes) {
+                        handleShape(shp, push = false);
+                    }
                 });
                 overleafLayers[l] = lyr;
             }
@@ -105,9 +121,6 @@ Vue.createApp({
 
             map.createPane('basePane');
             map.getPane('basePane').style.zIndex = 199;
-
-            // Allow drawing rectangle
-            let overlays = [];
 
 
             var layerControl = L.control.layers(baseMaps, {}, options = {
@@ -168,13 +181,13 @@ Vue.createApp({
 
 
 
-            function bindPopup(overlay, mean) {
+            function bindPopup(overlay, mean, push = true) {
                 overlay.bindPopup(
                     L.popup({ closeOnClick: false, })
                         .setLatLng(overlay.getBounds().getCenter())
                         .setContent(`<p>Mean: ${mean}</p>`)
                         .addTo(map));
-                overlays.push(overlay);
+                if (push) overlays.push(overlay);
                 overlay.on('mouseover', function () {
                     this.openPopup();
                 });
@@ -186,22 +199,12 @@ Vue.createApp({
                 let res, obj;
                 switch (event.shape) {
                     case 'Rectangle':
-                        res = await fetch(`${location.href.replace(':8080/', '')}:9000/api?bbox=${overlay.getBounds().toBBoxString()}&layer=${activeLayer.value}`)
-                        obj = await res.json();
-                        bindPopup(overlay, obj.mean[0]);
+                        await handleRectangle(overlay);
                         break;
                     case 'Polygon':
                         //console.log('Polygon');
                         //console.log(event);
-                        let wkt = convertLatLngToWKT(event.layer.getLatLngs()[0]);
-                        res = await fetch(`${location.href.replace(':8080/', '')}:9000/polygon?${new URLSearchParams({
-                            wkt: wkt,
-                            layer: activeLayer.value
-                        })
-                            }`);
-                        obj = await res.json();
-                        // console.log(obj);
-                        bindPopup(overlay, obj.mean[0]);
+                        await handlePolygon(overlay);
                         break;
                 }
             }
@@ -219,13 +222,13 @@ Vue.createApp({
                         let file = shapefile.files[0];
                         const formData = new FormData();
                         formData.append('file', file);
-                        formData.append('layer', activeLayer.value);
-                        const response = await fetch(`${location.href.replace(':8080/', '')}:9000/upload`, {
+                        const response = await fetch(`${location.href.match(/(http:\/\/.*?)(:\d+)?\//)[1]}:9000/upload?layer=${activeLayer.value}`, {
                             method: 'POST',
                             body: formData
                         });
                         const obj = await response.json();
                         let overlay = L.geoJSON(JSON.parse(obj.geojson[0])).addTo(map);
+                        shapes.push(overlay);
                         bindPopup(overlay, obj.mean[0]);
                     }
                 },
@@ -238,16 +241,60 @@ Vue.createApp({
                 className: 'fas fa-remove font-awesome-toolbar',
                 title: 'Clear all layers',
                 onClick: () => {
-                    searchLayer.value?.remove();
-                    for (let layerIndex = 0; layerIndex < overlays.length; layerIndex++) {
-                        overlays[layerIndex]?.remove();
-                        delete overlays[layerIndex];
-                    }
-                    delete overlays;
-                    overlays = [];
+                    handleClearAll();
                 },
                 toggle: false,
             });
+
+
+            function unbindPopups() {
+                for (let overlay of overlays) {
+                    overlay.closePopup();
+                    overlay.unbindPopup();
+                }
+            }
+            function handleClearAll() {
+                searchLayer.value?.remove();
+                for (let layerIndex = 0; layerIndex < overlays.length; layerIndex++) {
+                    overlays[layerIndex]?.remove();
+                    delete overlays[layerIndex];
+                }
+                delete overlays;
+                overlays = [];
+                rectangles = [];
+                polygons = [];
+            }
+
+            async function handlePolygon(overlay, push = true) {
+                let wkt = convertLatLngToWKT(overlay.getLatLngs()[0]);
+                let res = await fetch(`${location.href.match(/(http:\/\/.*?)(:\d+)?\//)[1]}:9000/polygon?${new URLSearchParams({
+                    wkt: wkt,
+                    layer: activeLayer.value
+                })}`);
+                let obj = await res.json();
+                if (push) polygons.push(overlay); 
+                // console.log(obj);
+                bindPopup(overlay, obj.mean[0], push);
+            }
+
+            async function handleRectangle(overlay, push=true) {
+                let res = await fetch(`${location.href.match(/(http:\/\/.*?)(:\d+)?\//)[1]}:9000/api?bbox=${overlay.getBounds().toBBoxString()}&layer=${activeLayer.value}`);
+                let obj = await res.json();
+                if (push) rectangles.push(overlay);
+                bindPopup(overlay, obj.mean[0], push);
+            }
+
+            async function handleShape(overlay, push=false) {
+                console.log(overlay);
+                let res = await fetch(`${location.href.match(/(http:\/\/.*?)(:\d+)?\//)[1]}:9000/geojson?${new URLSearchParams({
+                    geojson: JSON.stringify(overlay.toGeoJSON()),
+                    layer: activeLayer.value
+                })}`);
+                let obj = await res.json();
+                if (push) shapes.push(overlay);
+                console.log(obj);
+                bindPopup(overlay, obj.mean[0], push);
+            }
 
             function convertLatLngToWKT(latlngList, srid) {
                 var wktString = "POLYGON ((";
@@ -332,7 +379,7 @@ Vue.createApp({
             $('#searchPrompt').onselect = changedValue;
 
             async function queryGeoJson(result) {
-                res = await fetch(`${location.href.replace(':8080/', '')}:9000/geojson`, {
+                res = await fetch(`${location.href.match(/(http:\/\/.*?)(:\d+)?\//)[1]}:9000/geojson`, {
                     method: 'POST',
                     body: JSON.stringify({
                         "geojson": result.geometry
