@@ -4,9 +4,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GIS Platform</title>
+    <title>RapidFEM4D</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="figures/favicon-16x16.png">
+
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+
+    <!-- Add Semantic UI CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/semantic.min.css"
+        integrity="sha512-KXol4x3sVoO+8ZsWPFI/r5KBVB/ssCGB5tsv2nVOKwLg33wTFP3fmnXa47FdSVIshVTgsYk/1734xSk9aFIa4A=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -16,7 +25,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
 
 
-    <link rel="stylesheet" href="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.css" />
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@geoman-io/leaflet-geoman-free@2.14.2/dist/leaflet-geoman.min.css" />
     <script src="dist/jquery.min.js"></script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/semantic.min.css"
@@ -37,9 +47,75 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vuetify@3.3.22/dist/vuetify.min.css">
     <script src="https://cdn.jsdelivr.net/npm/vuetify@3.3.22/dist/vuetify.min.js"></script>
 
+    <!-- Thumbnail -->
+    <meta property="og:image" content="figures/logo.png">
+    <meta property="og:title" content="RapidFEM4D">
+    <meta property="og:description"
+        content="A web-based mapping platform for assessing the impacts and near-term recovery of hurricane Ian on forest ecosystems in Florida">
+
 </head>
 
 <body>
+
+    <!-- Pop up text box -->
+
+    <div id="popupBox" class="ui modal">
+
+
+        <!-- Video container -->
+        <div class="header">
+            <div class="custom-style2">
+                <strong>Welcome to RapidFEM4D</strong>
+
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- Flex container for text and video side by side -->
+            <div class="flex-container">
+                <!-- Text box -->
+                <div class="custom-style">
+                    <p>Welcome to <strong>RapidFEM4D</strong>, a web-based mapping platform for
+                        assessing the impacts and recovery of Hurricane Ian on forest ecosystems in Florida.</p>
+                    <p>Developed by the Forest Biometrics, Remote Sensing, and Artificial Intelligence (SilvaLab)
+                        at the University of Florida, this innovative mapping tool offers
+                        a perspective on the aftermath of Hurricane Ian. Explore data, visualizations, and insights
+                        on above-ground biomass density in Florida's forest ecosystems.</p>
+                    <p>Let's explore, discover, and learn together!</p>
+                </div>
+                <div id="videoContainer">
+                    <video width="100%" height="auto" autoplay loop muted>
+                        <source src="figures/RapidFEM4D_final.mp4" type="video/mp4">
+                    </video>
+                </div>
+            </div>
+        </div>
+        <div class="actions">
+            <div class="ui button" onclick="closePopup()">Close</div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"
+        integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/semantic.min.js"
+        integrity="sha512-Xo0Jh8MsOn72LGV8kU5LsclG7SUzJsWGhXbWcYs2MAmChkQzwiW/yTQwdJ8w6UA9C6EVG18GHb/TrYpYCjyAQw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+
+    <header class="">
+        <div>
+            <img src="figures/header_left.png" alt="Page Header">
+        </div>
+
+        <div>
+            <img src="figures/header_center.png" alt="Page Header">
+        </div>
+
+        <div>
+            <img src="figures/header_right.png" alt="Page Header">
+        </div>
+    </header>
+
     <div id="app">
         <div id="search">
             <div class="ui fluid icon input">
@@ -55,16 +131,24 @@
                 <div v-for="(value, key) in layersRef?.[activeLayer]?.legend.labels">{{value}}</div>
             </div>
             <div id="legend-ramp"
-            :style="layersRef?.[activeLayer] ? `background: ${layersRef?.[activeLayer]?.legend.colors}` : 'display: none;'"></div>
+                :style="layersRef?.[activeLayer] ? `background: ${layersRef?.[activeLayer]?.legend.colors}` : 'display: none;'">
+            </div>
+            <div id="legend-unit">
+                Mg/ha
+            </div>
         </div>
+        <div id="opacity-label">Opacity:</div>
         <v-slider v-model="opacity"></v-slider>
+        
+        <!-- <div id="vector-label">Hurricane info:</div> -->
 
         <form action="" onsubmit="return false;" id="formShapefile">
             <input type="file" name="shapefile" id="shapefile" accept=".zip">
         </form>
     </div>
 
-    <script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@geoman-io/leaflet-geoman-free@2.14.2/dist/leaflet-geoman.min.js
+    "></script>
     <script src="script.js"></script>
 </body>
 

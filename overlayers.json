@@ -1,0 +1,61 @@
+{
+    "ianPts": {
+        "title": "Hurricane info",
+        "location": "vector/ianpts.geojson",
+        "style": {
+            "radius": 7,
+            "fillColor": "white",
+            "color": "#000",
+            "weight": 3,
+            "opacity": 1,
+            "fillOpacity": 1
+        }
+    },
+    "ianTrack": {
+        "title": "Hurricane info",
+        "location": "vector/iantrack.geojson",
+        "style": {
+            "weight": 5,
+            "opacity": 1
+        }
+    },
+    "aoiLayer": {
+        "title": "Area of interest",
+        "location": "vector/aoi.geojson",
+        "style": {
+            "weight": 2,
+            "color": "#DFDFDF",
+            "fillOpacity": 0.2
+        }
+    },
+    "countyLayer": {
+        "title": "Counties or equivalent",
+        "location": "vector/county_or_equivalent.geojson",
+        "style": {
+            "weight": 2,
+            "color": "#DFDFDF",
+            "fillOpacity": 0
+        },
+        "tooltip": {
+            "permanent": false,
+            "direction": "center",
+            "className": "county-label"
+        },
+        "property": "county_nam"
+    },
+    "cityLayer": {
+        "title": "Minor civil division",
+        "location": "vector/minor_civil_division.geojson",
+        "style": {
+            "weight": 2,
+            "color": "#DFDFDF",
+            "fillOpacity": 0
+        },
+        "tooltip": {
+            "permanent": false,
+            "direction": "center",
+            "className": "county-label"
+        },
+        "property": "minorciv_1"
+    }
+}

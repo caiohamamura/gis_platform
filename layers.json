@@ -1,40 +1,118 @@
 {
-    "gedi_carbon": {
-        "title": "GEDI 4A Carbon",
-        "location": "tms/gedi_carbon",
-        "max_zoom": 7,
+    "agbd_2022_masked": {
+        "title": "2022: AGBD Prediction",
+        "location": "tms/20240116_test_36_2022_mean",
+        "max_zoom": 13,
         "bounds": [
             [
-                23.115671759,
-                -128.589211618
+                25.1847576689999997,
+                -82.8599668150000070
             ],
             [
-                51.876925960,
-                -68.724066390
+                30.4262027730000000,
+                -80.0318457219999999
             ]
         ],
         "legend": {
-            "colors": "linear-gradient(90deg, rgb(215 25 28), rgb(255 255 192), rgb(26 150 65))",
-            "labels": [0, 500, 1000]
-        }
+            "colors": "linear-gradient(90deg, rgb(65 67 135), rgb(42 120 142), rgb(35 168 132), rgb(122 209 81), rgb(253 231 37))",
+            "labels": [
+                0,
+                350
+            ]
+        },
+        "group":"Pre hurricane"
+        
     },
-    "gedi_carbon2": {
-        "title": "GEDI 4B Blue",
-        "location": "tms/gedi_carbon_blue",
-        "max_zoom": 7,
+    "agbd_2022_std": {
+        "title": "2022: AGBD Uncertainty",
+        "location": "tms/20240116_test_36_2022_std",
+        "max_zoom": 13,
         "bounds": [
             [
-                23.115671759,
-                -128.589211618
+                25.1847576689999997,
+                -82.8599668150000070
             ],
             [
-                51.876925960,
-                -68.724066390
+                30.4262027730000000,
+                -80.0318457219999999
             ]
         ],
         "legend": {
-            "colors": "linear-gradient(90deg, rgb(215 25 28), rgb(255 255 192), rgb(26 65 150))",
-            "labels": [0, 200, 500]
-        }
+            "colors": "linear-gradient(90deg, rgb(0 0 0), rgb(80 18 123), rgb(182 55 122), rgb(251 135 97), rgb(252 253 191))",
+            "labels": [
+                0,
+                100
+            ]
+        },
+        "group":"Pre hurricane"
+    },
+    "agbd_2023_masked": {
+        "title": "2023: AGBD Prediction",
+        "location": "tms/20240116_test_36_2023_mean",
+        "max_zoom": 13,
+        "bounds": [
+            [
+                25.1847576689999997,
+                -82.8599668150000070
+            ],
+            [
+                30.4262027730000000,
+                -80.0318457219999999
+            ]
+        ],
+        "legend": {
+            "colors": "linear-gradient(90deg, rgb(65 67 135), rgb(42 120 142), rgb(35 168 132), rgb(122 209 81), rgb(253 231 37))",
+            "labels": [
+                0,
+                350
+            ]
+        },
+        "group":"Post hurricane"
+    },
+    "agbd_2023_std": {
+        "title": "2023: AGBD Uncertainty",
+        "location": "tms/20240116_test_36_2023_std",
+        "max_zoom": 13,
+        "bounds": [
+            [
+                25.1847576689999997,
+                -82.8599668150000070
+            ],
+            [
+                30.4262027730000000,
+                -80.0318457219999999
+            ]
+        ],
+        "legend": {
+            "colors": "linear-gradient(90deg, rgb(0 0 0), rgb(80 18 123), rgb(182 55 122), rgb(251 135 97), rgb(252 253 191))",
+            "labels": [
+                0,
+                100
+            ]
+        },
+        "group":"Post hurricane"
+    },
+    "agbd_2022_2023_loss_masked": {
+        "title": "2022-2023: AGBD Loss",
+        "location": "tms/20240116_test_36_loss",
+        "max_zoom": 13,
+        "bounds": [
+            [
+                25.1847576689999997,
+                -82.8599668150000070
+            ],
+            [
+                30.4262027730000000,
+                -80.0318457219999999
+            ]
+        ],
+        "legend": {
+            "colors": "linear-gradient(90deg, rgb(43 131 186), rgb(171 221 164), rgb(255 255 191), rgb(253 174 97), rgb(215 25 28))",
+            "labels": [
+                0,
+                50
+            ]
+        },
+        "group":"Post hurricane"
     }
 }
