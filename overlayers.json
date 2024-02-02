@@ -1,24 +1,4 @@
 {
-    "ianPts": {
-        "title": "Hurricane info",
-        "location": "vector/ianpts.geojson",
-        "style": {
-            "radius": 7,
-            "fillColor": "white",
-            "color": "#000",
-            "weight": 3,
-            "opacity": 1,
-            "fillOpacity": 1
-        }
-    },
-    "ianTrack": {
-        "title": "Hurricane info",
-        "location": "vector/iantrack.geojson",
-        "style": {
-            "weight": 5,
-            "opacity": 1
-        }
-    },
     "aoiLayer": {
         "title": "Area of interest",
         "location": "vector/aoi.geojson",
@@ -28,6 +8,7 @@
             "fillOpacity": 0.2
         }
     },
+
     "countyLayer": {
         "title": "Counties or equivalent",
         "location": "vector/county_or_equivalent.geojson",
@@ -43,6 +24,25 @@
         },
         "property": "county_nam"
     },
+
+
+    "countyLayer2": {
+        "title": "Counties or equivalent2",
+        "location": "vector/county_or_equivalent.geojson",
+        "style": {
+            "weight": 2,
+            "color": "#000",
+            "fillOpacity": 0.8
+        },
+        "tooltip": {
+            "permanent": false,
+            "direction": "center",
+            "className": "county-label"
+        },
+        "property": "county_nam"
+    },
+
+
     "cityLayer": {
         "title": "Minor civil division",
         "location": "vector/minor_civil_division.geojson",
@@ -57,5 +57,83 @@
             "className": "county-label"
         },
         "property": "minorciv_1"
+    },
+
+
+    "ianTrack": {
+        "title": "Hurricane info",
+        "location": "vector/iantrack.geojson",
+        "style": {
+            "weight": 5,
+            "opacity": 1,
+            "colorMap": {
+                "HU_1": "rgb(253, 174, 97)",
+                "HU_2": "rgb(253, 174, 97)",
+                "HU_3": "rgb(215, 25, 28)",
+                "HU_4": "rgb(215, 25, 28)",
+                "HU_5": "rgb(215, 25, 28)",
+                "LO_0": "rgb(43, 131, 186)",
+                "TD_0": "rgb(171, 221, 164)",
+                "TS_0": "rgb(255, 255, 191)"
+
+            },
+            "dashArray": "1",
+            "legend": {
+                "title": "Hurricane Ian, 22 Sep - 1 Oct 2022",
+                "items": [
+                    {
+                        "color": "rgb(215, 25, 28)",
+                        "label": "Major Hurricane"
+                    },
+                    {
+                        "color": "rgb(253, 174, 97)",
+                        "label": "Hurricane"
+                    },
+                    {
+                        "color": "rgb(255, 255, 191)",
+                        "label": "Tropical Storm"
+                    },
+                    {
+                        "color": "rgb(171, 221, 164)",
+                        "label": "Tropical Depression"
+                    },
+                    {
+                        "color": "rgb(43, 131, 186)",
+                        "label": "Wave/Low/Disturbance"
+                    }
+                ]
+            }
+        }
+    },
+
+
+    "ianPts": {
+        "title": "Hurricane info",
+        "location": "vector/ianpts.geojson",
+        "style": {
+            "radius": 7,
+            "fillColor": "white",
+            "color": "black",
+            "weight": 2,
+            "opacity": 1,
+            "fillOpacity": 1
+        }
+    },
+
+    
+    "ianTrack2": {
+        "title": "Hurricane info",
+        "location": "vector/iantrack.geojson",
+        "style": {
+            "weight": 8,
+            "opacity": 1,
+            "color": "black"
+        }
     }
+
+
+
+
+
+
 }
