@@ -1,118 +1,127 @@
-{
-    "agbd_2022_masked": {
-        "title": "2022: AGBD Prediction",
-        "location": "tms/20240116_test_36_2022_mean",
-        "max_zoom": 13,
-        "bounds": [
-            [
-                25.1847576689999997,
-                -82.8599668150000070
-            ],
-            [
-                30.4262027730000000,
-                -80.0318457219999999
-            ]
-        ],
-        "legend": {
-            "colors": "linear-gradient(90deg, rgb(65 67 135), rgb(42 120 142), rgb(35 168 132), rgb(122 209 81), rgb(253 231 37))",
-            "labels": [
-                0,
-                350
-            ]
-        },
-        "group":"Pre hurricane"
-        
+[
+    {
+        "group": "Pre hurricane",
+        "layers": [
+            {
+                "id": "agbd_2022_masked",
+                "title": "2022: AGBD Prediction",
+                "location": "tms/20240116_test_36_2022_mean",
+                "max_zoom": 13,
+                "bounds": [
+                    [
+                        25.1847576689999997,
+                        -82.8599668150000070
+                    ],
+                    [
+                        30.4262027730000000,
+                        -80.0318457219999999
+                    ]
+                ],
+                "legend": {
+                    "colors": "linear-gradient(90deg, rgb(65 67 135), rgb(42 120 142), rgb(35 168 132), rgb(122 209 81), rgb(253 231 37))",
+                    "labels": [
+                        0,
+                        350
+                    ]
+                }
+            },
+            {
+                "id": "agbd_2022_std",
+                "title": "2022: AGBD Uncertainty",
+                "location": "tms/20240116_test_36_2022_std",
+                "max_zoom": 13,
+                "bounds": [
+                    [
+                        25.1847576689999997,
+                        -82.8599668150000070
+                    ],
+                    [
+                        30.4262027730000000,
+                        -80.0318457219999999
+                    ]
+                ],
+                "legend": {
+                    "colors": "linear-gradient(90deg, rgb(0 0 0), rgb(80 18 123), rgb(182 55 122), rgb(251 135 97), rgb(252 253 191))",
+                    "labels": [
+                        0,
+                        100
+                    ]
+                }
+            }
+        ]
     },
-    "agbd_2022_std": {
-        "title": "2022: AGBD Uncertainty",
-        "location": "tms/20240116_test_36_2022_std",
-        "max_zoom": 13,
-        "bounds": [
-            [
-                25.1847576689999997,
-                -82.8599668150000070
-            ],
-            [
-                30.4262027730000000,
-                -80.0318457219999999
-            ]
-        ],
-        "legend": {
-            "colors": "linear-gradient(90deg, rgb(0 0 0), rgb(80 18 123), rgb(182 55 122), rgb(251 135 97), rgb(252 253 191))",
-            "labels": [
-                0,
-                100
-            ]
-        },
-        "group":"Pre hurricane"
-    },
-    "agbd_2023_masked": {
-        "title": "2023: AGBD Prediction",
-        "location": "tms/20240116_test_36_2023_mean",
-        "max_zoom": 13,
-        "bounds": [
-            [
-                25.1847576689999997,
-                -82.8599668150000070
-            ],
-            [
-                30.4262027730000000,
-                -80.0318457219999999
-            ]
-        ],
-        "legend": {
-            "colors": "linear-gradient(90deg, rgb(65 67 135), rgb(42 120 142), rgb(35 168 132), rgb(122 209 81), rgb(253 231 37))",
-            "labels": [
-                0,
-                350
-            ]
-        },
-        "group":"Post hurricane"
-    },
-    "agbd_2023_std": {
-        "title": "2023: AGBD Uncertainty",
-        "location": "tms/20240116_test_36_2023_std",
-        "max_zoom": 13,
-        "bounds": [
-            [
-                25.1847576689999997,
-                -82.8599668150000070
-            ],
-            [
-                30.4262027730000000,
-                -80.0318457219999999
-            ]
-        ],
-        "legend": {
-            "colors": "linear-gradient(90deg, rgb(0 0 0), rgb(80 18 123), rgb(182 55 122), rgb(251 135 97), rgb(252 253 191))",
-            "labels": [
-                0,
-                100
-            ]
-        },
-        "group":"Post hurricane"
-    },
-    "agbd_2022_2023_loss_masked": {
-        "title": "2022-2023: AGBD Loss",
-        "location": "tms/20240116_test_36_loss",
-        "max_zoom": 13,
-        "bounds": [
-            [
-                25.1847576689999997,
-                -82.8599668150000070
-            ],
-            [
-                30.4262027730000000,
-                -80.0318457219999999
-            ]
-        ],
-        "legend": {
-            "colors": "linear-gradient(90deg, rgb(43 131 186), rgb(171 221 164), rgb(255 255 191), rgb(253 174 97), rgb(215 25 28))",
-            "labels": [
-                0,
-                50
-            ]
-        },
-        "group":"Post hurricane"
+    {
+        "group": "Post hurricane",
+        "layers": [
+            {
+                "id": "agbd_2023_masked",
+                "title": "2023: AGBD Prediction",
+                "location": "tms/20240116_test_36_2023_mean",
+                "max_zoom": 13,
+                "bounds": [
+                    [
+                        25.1847576689999997,
+                        -82.8599668150000070
+                    ],
+                    [
+                        30.4262027730000000,
+                        -80.0318457219999999
+                    ]
+                ],
+                "legend": {
+                    "colors": "linear-gradient(90deg, rgb(65 67 135), rgb(42 120 142), rgb(35 168 132), rgb(122 209 81), rgb(253 231 37))",
+                    "labels": [
+                        0,
+                        350
+                    ]
+                }
+            },
+            {
+                "id": "agbd_2023_std",
+                "title": "2023: AGBD Uncertainty",
+                "location": "tms/20240116_test_36_2023_std",
+                "max_zoom": 13,
+                "bounds": [
+                    [
+                        25.1847576689999997,
+                        -82.8599668150000070
+                    ],
+                    [
+                        30.4262027730000000,
+                        -80.0318457219999999
+                    ]
+                ],
+                "legend": {
+                    "colors": "linear-gradient(90deg, rgb(0 0 0), rgb(80 18 123), rgb(182 55 122), rgb(251 135 97), rgb(252 253 191))",
+                    "labels": [
+                        0,
+                        100
+                    ]
+                }
+            },
+            {
+                "id": "agbd_2022_2023_loss_masked",
+                "title": "2022-2023: AGBD Loss",
+                "location": "tms/20240116_test_36_loss",
+                "max_zoom": 13,
+                "bounds": [
+                    [
+                        25.1847576689999997,
+                        -82.8599668150000070
+                    ],
+                    [
+                        30.4262027730000000,
+                        -80.0318457219999999
+                    ]
+                ],
+                "legend": {
+                    "colors": "linear-gradient(90deg, rgb(43 131 186), rgb(171 221 164), rgb(255 255 191), rgb(253 174 97), rgb(215 25 28))",
+                    "labels": [
+                        0,
+                        50
+                    ]
+                }
+            }
+        ]
     }
-}
+]

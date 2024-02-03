@@ -126,6 +126,34 @@
             </div>
         </div>
         <div id="map"></div>
+
+        <div class="leaflet-control-container">
+            <div class="leaflet-top leaflet-right">
+                <div id="layersControl" class="leaflet-control-layers leaflet-control-layers-expanded leaflet-control">
+                    <section class="leaflet-control-layers-list">
+                        <div class="leaflet-control-layers-base">
+                            <template v-for="l in layersRaw">
+                                <div v-if="l.group" class="ui accordion" @click="toggleAccordion(this, l.group)">
+                                    <div class="title"
+                                        :class="{active: l.layers.filter(e=>e.id == activeLayer).length > 0}">
+                                        <i class="dropdown icon"></i>
+                                        {{l.group}}
+                                    </div>
+                                    <div class="content"
+                                        :class="{active: l.layers.filter(e=>e.id == activeLayer).length > 0}">
+                                        <label v-for="ii in l.layers">
+                                            <span>
+                                                <span :class="{checked: ii.id === activeLayer}">{{ii.title}}</span>
+                                            </span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
         <div id="legend">
             <div id="legend-labels">
                 <div v-for="(value, key) in layersRef?.[activeLayer]?.legend.labels">{{value}}</div>
@@ -139,7 +167,7 @@
         </div>
         <div id="opacity-label">Opacity:</div>
         <v-slider v-model="opacity"></v-slider>
-        
+
         <!-- <div id="vector-label">Hurricane info:</div> -->
 
         <form action="" onsubmit="return false;" id="formShapefile">
