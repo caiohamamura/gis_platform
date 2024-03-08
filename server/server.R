@@ -1,11 +1,8 @@
-library(pacman)
-pacman::p_load(
-  plumber,
-  terra,
-  sf,
-  glue,
-  geojsonsf
-)
+library(plumber)
+library(terra)
+library(sf)
+library(glue)
+library(geojsonsf)
 
 rasters = list(
   gedi_carbon = terra::rast('gedi_carbon.tif'),
@@ -81,6 +78,7 @@ polygon <- function(wkt, layer = 'gedi_carbon') {
 #* Apply polygon geojson
 #* Example usage: http://localhost:9000/
 #* @param geojson:[geojson] The geojson from the polygon
+#* @param layer The layer name
 #* @post /geojson
 geojson <- function(req, geojson, layer = 'gedi_carbon') {
     # Create a terra polygon from the WKT
@@ -104,33 +102,34 @@ geojson <- function(req, geojson, layer = 'gedi_carbon') {
 }
 
 #* @param file:[file]
+#* @param layer The layer name
 #* @post /upload
 function(file, layer = 'gedi_carbon') {
   message(layer)
-  tmp = paste0(tempfile(), '.zip')
+  tmp = tempfile(fileext = '.zip')
   writeBin(file[[names(file)]], tmp)
 
   tempdir = dirname(tmp)
-  unzip(tmp, exdir=tempdir)
+  unzip(tmp, exdir = tempdir)
 
-  shp = file.path(tempdir, list.files(tempdir, pattern='*.shp')[1])
+  shp = file.path(tempdir, list.files(tempdir, pattern = '*.shp')[1])
   shp = sf::st_read(shp)
   
   on.exit({
-    unlink(tempdir, recursive = T)
+    unlink(file.path(tempdir, list.files(tempdir)))
   })
   
   transformed = sf::st_transform(shp, crs=crs(rasters[[layer]]))
   clippedRaster = terra::crop(rasters[[layer]], transformed)
   maskedRaster = terra::mask(clippedRaster, transformed)
   mean = terra::global(maskedRaster, fun='mean', na.rm=T)
+  message('ok5')
   # Return a JSON response
   response <- list(
     mean = mean$mean,
-    geojson = sf_geojson(shp)
+    geojson = sf_geojson(sf::st_transform(shp, crs='epsg:4326'))
   )
 
-  unlink(tempdir, recursive=T)
   return(response)  
 }
 

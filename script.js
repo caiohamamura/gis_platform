@@ -1,31 +1,28 @@
-
-
 const { ref, onCreated, onMounted } = Vue;
+const { createVuetify } = Vuetify
+
+const vuetify = createVuetify()
+
 Vue.createApp({
     setup() {
+        const activeBaseLayer = ref();
         const activeLayer = ref();
         const layersRef = ref();
         const mapRef = ref();
         const overleafLayersRef = ref();
+        const opacity = ref(70);
+        let rectangles = [];
+        let polygons = [];
+        let shapes = [];
+        // Allow drawing rectangle
+        let overlays = [];
 
         onMounted(async () => {
             const layers = await (await fetch('layers.json')).json();
             layersRef.value = layers;
             const initLayer = Object.keys(layers)[0];
-            console.log(initLayer);
+
             activeLayer.value = initLayer;
-
-            let osm = L.tileLayer(
-                'http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-                minZoom: 0,
-                maxZoom: 18,
-            });
-
-
-
-
-
 
             let createArrayUpToIndex = (index) => Array.from(Array(index + 1).keys());
 
@@ -34,7 +31,7 @@ Vue.createApp({
 
             for (const l in layers) {
                 const layer = layers[l];
-                overleafLayers[l] =
+                lyr =
                     L.tileLayer(
                         `${layers[l].location}/{z}/{x}/{y}.png`,
                         {
@@ -47,44 +44,108 @@ Vue.createApp({
                             bounds: layer.bounds,
                         }
                     );
+                lyr.addEventListener('add', function () {
+                    let checked = document.querySelector('.leaflet-left span.checked');
+                    lyr.setOpacity(opacity.value / 100.0);
+                    setTimeout(
+                        function () {
+                            checked?.classList.add('checked')
+                        },
+                        0
+                    );
+                    activeLayer.value = l;
+
+                    unbindPopups();
+                    for (let rect of rectangles) {
+                        handleRectangle(rect);
+                    }
+                    for (let pol of polygons) {
+                        handlePolygon(pol);
+                    }
+                    for (let shp of shapes) {
+                        handleGeoJSON(shp);
+                    }
+                });
+                overleafLayers[l] = lyr;
             }
 
             overleafLayersRef.value = overleafLayers;
 
 
 
+            let osm = L.tileLayer(
+                'http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+                minZoom: 0,
+                maxZoom: 18,
+            });
+            let esri = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+            });
+            var baseMaps = {
+                "ESRI": esri,
+                "OpenStreetMap": osm,
+            };
+
+            for (let k in baseMaps) {
+                let layer = baseMaps[k];
+                layer.addEventListener('add', function () {
+                    if (activeLayer.value in overleafLayers) {
+                        overleafLayers[activeLayer.value]?.setZIndex(101);
+                        let checked = document.querySelector('.leaflet-right span.checked');
+                        setTimeout(
+                            function () {
+                                checked?.classList.add('checked');
+                            },
+                            0
+                        );
+                    }
+                })
+            }
+
+            activeBaseLayer.value = 'ESRI';
             map = L.map('map', {
                 crs: L.CRS.EPSG3857,
                 pmIgnore: false,
-                layers: [overleafLayers['gedi_carbon']],
+                layers: [
+                ],
                 zoomControl: false,
             }).setView([40, -90], 3);
 
             mapRef.value = map;
+            baseMaps[activeBaseLayer.value].addTo(map);
+            overleafLayers[activeLayer.value].addTo(map);
 
             map.createPane('basePane');
             map.getPane('basePane').style.zIndex = 199;
 
-            let landsat = L.esri
-                .imageMapLayer({
-                    url: "https://landsat.arcgis.com/arcgis/rest/services/Landsat/PS/ImageServer",
-                    pane: 'basePane',
-                    attribution: "United States Geological Survey (USGS), National Aeronautics and Space Administration (NASA)"
-                });
 
-
-            var baseMaps = {
-                "OpenStreetMap": osm.addTo(map),
-                "Landsat": landsat
-            };
-
-            // Allow drawing rectangle
-            let overlays = [];
-
-            var layerControl = L.control.layers(baseMaps, overleafLayers, options = {
+            var layerControl = L.control.layers(baseMaps, {}, options = {
                 "collapsed": false,
+                "autoZIndex": false,
                 position: 'topleft'
             }).addTo(map);
+
+
+            let overleafLayersTitle = {};
+            for (let k in overleafLayers) {
+                const layer = layersRef.value[k];
+                overleafLayersTitle[layer.title] = overleafLayers[k];
+            }
+
+            let layerControl2 = L.control.layers(overleafLayersTitle, {}, options = {
+                "collapsed": false,
+                "autoZIndex": true,
+                position: 'topright'
+            }).addTo(map);
+
+
+            let layers2 = document.querySelector('.leaflet-right .leaflet-control-layers-base');
+            let slider = document.querySelector('.v-slider');
+            slider.remove();
+            layers2.append(slider);
+
+
             var zoomControl = L.control.zoom().addTo(map);
 
 
@@ -92,13 +153,11 @@ Vue.createApp({
             // Get the overlay container element
             const overlayContainer = layerControl.getContainer();
 
-            // Get all the overlay input elements
-            const overlayInputs = overlayContainer.querySelectorAll('input[type="checkbox"]');
-
-
-
             L.control.scale().addTo(map);
             layerControl._baseLayersList.querySelector('label:nth-child(1)>span>span').classList.add('checked');
+            layerControl2._baseLayersList.querySelector('label:nth-child(1)>span>span').classList.add('checked');
+
+
 
             map.pm.addControls({
                 position: 'topleft',
@@ -123,7 +182,8 @@ Vue.createApp({
                         .setLatLng(overlay.getBounds().getCenter())
                         .setContent(`<p>Mean: ${mean}</p>`)
                         .addTo(map));
-                overlays.push(overlay);
+                if (overlays.some(e => e == overlay) == false)
+                    overlays.push(overlay)
                 overlay.on('mouseover', function () {
                     this.openPopup();
                 });
@@ -131,26 +191,13 @@ Vue.createApp({
 
             async function handleDrawEnd(event) {
                 let overlay = event.layer;
-                overlays.push(overlay);
                 let res, obj;
                 switch (event.shape) {
                     case 'Rectangle':
-                        res = await fetch(`http://localhost:9000/api?bbox=${overlay.getBounds().toBBoxString()}&layer=${activeLayer.value}`)
-                        obj = await res.json();
-                        bindPopup(overlay, obj.mean[0]);
+                        await handleRectangle(overlay);
                         break;
                     case 'Polygon':
-                        //console.log('Polygon');
-                        //console.log(event);
-                        let wkt = convertLatLngToWKT(event.layer.getLatLngs()[0]);
-                        res = await fetch(`http://localhost:9000/polygon?${new URLSearchParams({
-                            wkt: wkt,
-                            layer: activeLayer.value
-                        })
-                            }`);
-                        obj = await res.json();
-                        // console.log(obj);
-                        bindPopup(overlay, obj.mean[0]);
+                        await handlePolygon(overlay);
                         break;
                 }
             }
@@ -168,13 +215,13 @@ Vue.createApp({
                         let file = shapefile.files[0];
                         const formData = new FormData();
                         formData.append('file', file);
-                        formData.append('layer', activeLayer.value);
-                        const response = await fetch('http://localhost:9000/upload', {
+                        const response = await fetch(`${location.href.match(/(http:\/\/.*?)(:\d+)?\//)[1]}:9000/upload?layer=${activeLayer.value}`, {
                             method: 'POST',
                             body: formData
                         });
                         const obj = await response.json();
                         let overlay = L.geoJSON(JSON.parse(obj.geojson[0])).addTo(map);
+                        shapes.push(overlay);
                         bindPopup(overlay, obj.mean[0]);
                     }
                 },
@@ -187,15 +234,53 @@ Vue.createApp({
                 className: 'fas fa-remove font-awesome-toolbar',
                 title: 'Clear all layers',
                 onClick: () => {
-                    for (let layerIndex = 0; layerIndex < overlays.length; layerIndex++) {
-                        overlays[layerIndex]?.remove();
-                        delete overlays[layerIndex];
-                    }
-                    delete overlays;
-                    overlays = [];
+                    handleClearAll();
                 },
                 toggle: false,
             });
+
+
+            function unbindPopups() {
+                for (let overlay of overlays) {
+                    overlay.closePopup();
+                    overlay.unbindPopup();
+                }
+            }
+            function handleClearAll() {
+                for (let layerIndex = 0; layerIndex < overlays.length; layerIndex++) {
+                    overlays[layerIndex]?.remove();
+                    delete overlays[layerIndex];
+                }
+                delete overlays;
+                overlays = [];
+                rectangles = [];
+                polygons = [];
+            }
+
+            async function handlePolygon(overlay) {
+                let wkt = convertLatLngToWKT(overlay.getLatLngs()[0]);
+                let res = await fetch(`${location.href.match(/(http:\/\/.*?)(:\d+)?\//)[1]}:9000/polygon?${new URLSearchParams({
+                    wkt: wkt,
+                    layer: activeLayer.value
+                })}`);
+                let obj = await res.json();
+                if (polygons.some(e => e == overlay) === false)
+                    polygons.push(overlay);
+                bindPopup(overlay, obj.mean[0]);
+            }
+
+            async function handleRectangle(overlay) {
+                let res = await fetch(`${location.href.match(/(http:\/\/.*?)(:\d+)?\//)[1]}:9000/api?bbox=${overlay.getBounds().toBBoxString()}&layer=${activeLayer.value}`);
+                let obj = await res.json();
+                if (rectangles.some(e => e === overlay) === false) {
+                    rectangles.push(overlay);
+                }
+                bindPopup(overlay, obj.mean[0]);
+            }
+
+            async function handleShp(overlay) {
+                handleGeoJSON(overlay)
+            }
 
             function convertLatLngToWKT(latlngList, srid) {
                 var wktString = "POLYGON ((";
@@ -216,25 +301,7 @@ Vue.createApp({
                 return sridOut + wktString;
             }
 
-            // let timeoutAutocomplete;
-            // searchPrompt.onkeydown = function () {
-            //     if (timeoutAutocomplete)
-            //         clearTimeout(timeoutAutocomplete);
-            //     timeoutAutocomplete = setTimeout(getSearchResults, 500);
-            // }
-
-            // async function getSearchResults() {
-            //     let res = await fetch(`https://nominatim.openstreetmap.org/search.php?q=${encodeURIComponent(searchPrompt.value)}&polygon_geojson=0&format=jsonv2`);
-            //     let obj = await res.json();
-            //     let content = obj.map(el => ({
-            //         title: el.display_name
-            //     }));
-
-            //     console.log(obj);
-            // }
-
             let results = [];
-            let searchLayer;
 
             $('#searchPrompt')
                 .dropdown({
@@ -243,7 +310,6 @@ Vue.createApp({
                     apiSettings: {
                         url: 'https://nominatim.openstreetmap.org/search.php?q={query}&format=jsonv2',
                         onResponse: function (res) {
-                            // console.log(res);
                             var response = {
                                 results: {}
                             };
@@ -263,31 +329,28 @@ Vue.createApp({
                 });
 
             async function changedValue(value, text, choice) {
-                // console.log(result);
-                console.log(value);
-                console.log(text);
-                console.log(choice);
-
                 let res = await fetch(`https://nominatim.openstreetmap.org/details.php?place_id=${value}&format=json&polygon_geojson=1`);
                 let result = await res.json();
-                console.log(result);
+
                 let bbox = result.boundingbox;
-                searchLayer = L.geoJSON(result.geometry).addTo(map);
-                map.fitBounds(searchLayer.getBounds());
-                queryGeoJson(result);
+                let layer = L.geoJSON(result.geometry).addTo(map);
+                map.fitBounds(layer.getBounds());
+                handleGeoJSON(layer);
                 document.activeElement.blur();
             }
             $('#searchPrompt').onselect = changedValue;
 
-            async function queryGeoJson(result) {
-                res = await fetch('http://localhost:9000/geojson', {
+            async function handleGeoJSON(layer) {
+                let res = await fetch(`${location.href.match(/(http:\/\/.*?)(:\d+)?\//)[1]}:9000/geojson?layer=${activeLayer.value}`, {
                     method: 'POST',
                     body: JSON.stringify({
-                        "geojson": result.geometry
+                        "geojson": layer.toGeoJSON()
                     })
                 });
-                obj = await res.json();
-                bindPopup(searchLayer, obj.mean[0]);
+                let obj = await res.json();
+                if (shapes.some(e => e == layer) === false)
+                    shapes.push(layer);
+                bindPopup(layer, obj.mean[0]);
             }
 
             map.on('baselayerchange', function (e) {
@@ -299,26 +362,19 @@ Vue.createApp({
 
 
 
-        function setActiveLayer(layer) {
-            overleafLayersRef.value?.[activeLayer.value]?.remove();
-            if (layer != activeLayer.value) {
-                overleafLayersRef.value?.[layer]?.addTo(mapRef.value);
-                activeLayer.value = layer;
-            } else {
-                activeLayer.value = ''; 
-            }
-            
-        }
+        Vue.watch(opacity, function () {
+            overleafLayersRef.value[activeLayer.value].setOpacity(opacity.value / 100.0);
+        })
 
-        const expandLayers = ref(true);
-
+        const expandLayers = ref(false);
         return {
-            setActiveLayer,
             activeLayer,
+            activeBaseLayer,
             expandLayers,
             overleafLayersRef,
             layersRef,
             mapRef,
+            opacity,
         };
     }
-}).mount('#app')
+}).use(vuetify).mount('#app')

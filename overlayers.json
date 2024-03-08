@@ -1,0 +1,122 @@
+{
+    "ianTrack": {
+        "title": "Hurricane info",
+        "location": "vector/iantrack.geojson",
+        "style": {
+            "weight": 5,
+            "opacity": 1,
+            "colorMap": {
+                "HU_1": "rgb(253, 174, 97)",
+                "HU_2": "rgb(253, 174, 97)",
+                "HU_3": "rgb(215, 25, 28)",
+                "HU_4": "rgb(215, 25, 28)",
+                "HU_5": "rgb(215, 25, 28)",
+                "LO_0": "rgb(43, 131, 186)",
+                "TD_0": "rgb(171, 221, 164)",
+                "TS_0": "rgb(255, 255, 191)"
+
+            },
+            "dashArray": "1"
+
+        }
+    },
+
+    "ianPts": {
+        "title": "Hurricane info",
+        "location": "vector/ianpts.geojson",
+        "style": {
+            "radius": 7,
+            "fillColor": "white",
+            "color": "black",
+            "weight": 2,
+            "opacity": 1,
+            "fillOpacity": 1
+        }
+    },
+    
+    "ianTrack2": {
+        "title": "Hurricane info",
+        "location": "vector/iantrack.geojson",
+        "style": {
+            "weight": 8,
+            "opacity": 1,
+            "color": "black"
+        }
+    },
+
+    "aoiLayer": {
+        "title": "Area of interest",
+        "location": "vector/aoi.geojson",
+        "style": {
+            "weight": 2,
+            "color": "#DFDFDF",
+            "fillOpacity": 0.2
+        }
+    },
+
+
+
+    "countyLayer2": {
+        "title": "Counties: Light damage ",
+        "location": "vector/county_or_equivalent.geojson",
+        "style": {
+            "weight": 2,
+            "color": "#000",
+            "fillOpacity": 0.9
+        },
+        "tooltip": {
+            "permanent": false,
+            "direction": "center",
+            "className": "county-label"
+        },
+        "property": "county_nam"
+    },
+
+    "countyLayer3": {
+        "title": "Counties: Moderate damage ",
+        "location": "vector/county_or_equivalent.geojson",
+        "style": {
+            "weight": 2,
+            "color": "#000",
+            "fillOpacity": 0.9
+        },
+        "tooltip": {
+            "permanent": false,
+            "direction": "center",
+            "className": "county-label"
+        },
+        "property": "county_nam"
+    },
+
+    "countyLayer4": {
+        "title": "Counties: Severe damage ",
+        "location": "vector/county_or_equivalent.geojson",
+        "style": {
+            "weight": 2,
+            "color": "#000",
+            "fillOpacity": 0.9
+        },
+        "tooltip": {
+            "permanent": false,
+            "direction": "center",
+            "className": "county-label"
+        },
+        "property": "county_nam"
+    },
+
+    "countyLayer5": {
+        "title": "Counties: Catastrophic damage ",
+        "location": "vector/county_or_equivalent.geojson",
+        "style": {
+            "weight": 2,
+            "color": "#000",
+            "fillOpacity": 0.9
+        },
+        "tooltip": {
+            "permanent": false,
+            "direction": "center",
+            "className": "county-label"
+        },
+        "property": "county_nam"
+    }
+}

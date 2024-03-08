@@ -34,6 +34,9 @@
         integrity="sha512-i9mZ/0lnBMdKZjkVQXImtZbWzrhomyyQzXarfT4ki1eD/Bi+rcV4lFyzX52lbRQtqj070JQea4p8QNCMrHzuYg=="
         crossorigin=""></script>
     <script src="https://unpkg.com/vue@3.3.4/dist/vue.global.prod.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vuetify@3.3.22/dist/vuetify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@3.3.22/dist/vuetify.min.js"></script>
+
 </head>
 
 <body>
@@ -47,18 +50,6 @@
             </div>
         </div>
         <div id="map"></div>
-        <div id="layersDiv" class="leaflet-bar" @mouseover="expandLayers = true" @mouseout2="expandLayers = false">
-            <i v-if="expandLayers == false" id="layersIcon" class="fas fa-layer-group"></i>
-            <div v-if="expandLayers == true" id="layersList" class="ui list">
-                
-                <div class="item" v-for="(layer, key) in layersRef" :class="{'active': key == activeLayer}" @click="setActiveLayer(key)">
-                    <div class="content">
-                            {{layer.title}}
-                    </div>
-                </div>
-
-            </div>
-        </div>
         <div id="legend">
             <div id="legend-labels">
                 <div v-for="(value, key) in layersRef?.[activeLayer]?.legend.labels">{{value}}</div>
@@ -66,6 +57,7 @@
             <div id="legend-ramp"
             :style="layersRef?.[activeLayer] ? `background: ${layersRef?.[activeLayer]?.legend.colors}` : 'display: none;'"></div>
         </div>
+        <v-slider v-model="opacity"></v-slider>
 
         <form action="" onsubmit="return false;" id="formShapefile">
             <input type="file" name="shapefile" id="shapefile" accept=".zip">
