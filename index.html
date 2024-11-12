@@ -56,7 +56,22 @@
 </head>
 
 <body>
+    <!-- The Modal -->
+    <div id="myModal" class="modal2">
 
+        <!-- Modal content -->
+        <div class="modal-content">
+            <!-- <span class="close">&times;</span> -->
+            <p>Damage assessment through AGBD calculates the extent of environmental impact based on the percentage loss of pixel values. Losses less than 5% indicate No damage, while 5-25% is Light damage. Moderate damage is seen with 25-33% loss, Severe damage with 33-50%, and anything over 50% is considered Catastrophic.</p>
+            <!-- <input type="text" id="modalInput" placeholder="Enter text here..."> -->
+            <!-- <button id="modalSubmit">Submit</button> -->
+        </div>
+
+    </div>
+
+
+
+    
     <!-- Pop up text box -->
 
     <div id="popupBox" class="ui modal">
@@ -127,19 +142,31 @@
         </div>
         <div id="map"></div>
         <div id="legend">
-            <div id="legend-labels">
-                <div v-for="(value, key) in layersRef?.[activeLayer]?.legend.labels">{{value}}</div>
+            <div v-if="layersRef?.[activeLayer]?.legend.test == 1">
+                <div class="legend3">
+                    <div class="legend-title" style="font-weight: bold;">Damage classification</div>
+                    <div class="legend-item2" style="background-color: rgb(43 131 186);"></div> No damage<br>
+                    <div class="legend-item2" style="background-color: rgb(171 221 164);"></div> Light<br>
+                    <div class="legend-item2" style="background-color: rgb(255 255 191);"></div> Moderate<br>
+                    <div class="legend-item2" style="background-color: rgb(253 174 97);"></div> Severe<br>
+                    <div class="legend-item2" style="background-color: rgb(215 25 28);"></div> Catastrophic<br>
+                </div>
             </div>
-            <div id="legend-ramp"
-                :style="layersRef?.[activeLayer] ? `background: ${layersRef?.[activeLayer]?.legend.colors}` : 'display: none;'">
-            </div>
-            <div id="legend-unit">
-                Mg/ha
+            <div v-else>
+                <div id="legend-labels">
+                    <div v-for="(value, key) in layersRef?.[activeLayer]?.legend.labels">{{value}}</div>
+                </div>
+                <div id="legend-ramp"
+                    :style="layersRef?.[activeLayer] ? `background: ${layersRef?.[activeLayer]?.legend.colors}` : 'display: none;'">
+                </div>
+                <div id="legend-unit">
+                    Mg/ha
+                </div>
             </div>
         </div>
         <div id="opacity-label">Opacity:</div>
         <v-slider v-model="opacity"></v-slider>
-        
+
         <!-- <div id="vector-label">Hurricane info:</div> -->
 
         <form action="" onsubmit="return false;" id="formShapefile">

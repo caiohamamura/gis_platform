@@ -1,65 +1,4 @@
 {
-    "aoiLayer": {
-        "title": "Area of interest",
-        "location": "vector/aoi.geojson",
-        "style": {
-            "weight": 2,
-            "color": "#DFDFDF",
-            "fillOpacity": 0.2
-        }
-    },
-
-    "countyLayer": {
-        "title": "Counties or equivalent",
-        "location": "vector/county_or_equivalent.geojson",
-        "style": {
-            "weight": 2,
-            "color": "#DFDFDF",
-            "fillOpacity": 0
-        },
-        "tooltip": {
-            "permanent": false,
-            "direction": "center",
-            "className": "county-label"
-        },
-        "property": "county_nam"
-    },
-
-
-    "countyLayer2": {
-        "title": "Counties or equivalent2",
-        "location": "vector/county_or_equivalent.geojson",
-        "style": {
-            "weight": 2,
-            "color": "#000",
-            "fillOpacity": 0.8
-        },
-        "tooltip": {
-            "permanent": false,
-            "direction": "center",
-            "className": "county-label"
-        },
-        "property": "county_nam"
-    },
-
-
-    "cityLayer": {
-        "title": "Minor civil division",
-        "location": "vector/minor_civil_division.geojson",
-        "style": {
-            "weight": 2,
-            "color": "#DFDFDF",
-            "fillOpacity": 0
-        },
-        "tooltip": {
-            "permanent": false,
-            "direction": "center",
-            "className": "county-label"
-        },
-        "property": "minorciv_1"
-    },
-
-
     "ianTrack": {
         "title": "Hurricane info",
         "location": "vector/iantrack.geojson",
@@ -77,35 +16,10 @@
                 "TS_0": "rgb(255, 255, 191)"
 
             },
-            "dashArray": "1",
-            "legend": {
-                "title": "Hurricane Ian, 22 Sep - 1 Oct 2022",
-                "items": [
-                    {
-                        "color": "rgb(215, 25, 28)",
-                        "label": "Major Hurricane"
-                    },
-                    {
-                        "color": "rgb(253, 174, 97)",
-                        "label": "Hurricane"
-                    },
-                    {
-                        "color": "rgb(255, 255, 191)",
-                        "label": "Tropical Storm"
-                    },
-                    {
-                        "color": "rgb(171, 221, 164)",
-                        "label": "Tropical Depression"
-                    },
-                    {
-                        "color": "rgb(43, 131, 186)",
-                        "label": "Wave/Low/Disturbance"
-                    }
-                ]
-            }
+            "dashArray": "1"
+
         }
     },
-
 
     "ianPts": {
         "title": "Hurricane info",
@@ -119,7 +33,6 @@
             "fillOpacity": 1
         }
     },
-
     
     "ianTrack2": {
         "title": "Hurricane info",
@@ -129,11 +42,81 @@
             "opacity": 1,
             "color": "black"
         }
+    },
+
+    "aoiLayer": {
+        "title": "Area of interest",
+        "location": "vector/aoi.geojson",
+        "style": {
+            "weight": 2,
+            "color": "#DFDFDF",
+            "fillOpacity": 0.2
+        }
+    },
+
+
+
+    "countyLayer2": {
+        "title": "Counties: Light damage ",
+        "location": "vector/county_or_equivalent.geojson",
+        "style": {
+            "weight": 2,
+            "color": "#000",
+            "fillOpacity": 0.9
+        },
+        "tooltip": {
+            "permanent": false,
+            "direction": "center",
+            "className": "county-label"
+        },
+        "property": "county_nam"
+    },
+
+    "countyLayer3": {
+        "title": "Counties: Moderate damage ",
+        "location": "vector/county_or_equivalent.geojson",
+        "style": {
+            "weight": 2,
+            "color": "#000",
+            "fillOpacity": 0.9
+        },
+        "tooltip": {
+            "permanent": false,
+            "direction": "center",
+            "className": "county-label"
+        },
+        "property": "county_nam"
+    },
+
+    "countyLayer4": {
+        "title": "Counties: Severe damage ",
+        "location": "vector/county_or_equivalent.geojson",
+        "style": {
+            "weight": 2,
+            "color": "#000",
+            "fillOpacity": 0.9
+        },
+        "tooltip": {
+            "permanent": false,
+            "direction": "center",
+            "className": "county-label"
+        },
+        "property": "county_nam"
+    },
+
+    "countyLayer5": {
+        "title": "Counties: Catastrophic damage ",
+        "location": "vector/county_or_equivalent.geojson",
+        "style": {
+            "weight": 2,
+            "color": "#000",
+            "fillOpacity": 0.9
+        },
+        "tooltip": {
+            "permanent": false,
+            "direction": "center",
+            "className": "county-label"
+        },
+        "property": "county_nam"
     }
-
-
-
-
-
-
 }

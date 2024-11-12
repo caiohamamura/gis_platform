@@ -1,6 +1,6 @@
 {
     "agbd_2022_masked": {
-        "title": "2022: AGBD Prediction",
+        "title": "2022: AGBD prediction",
         "location": "tms/20240116_test_36_2022_mean",
         "max_zoom": 13,
         "bounds": [
@@ -20,11 +20,10 @@
                 350
             ]
         },
-        "group":"Pre hurricane"
-        
+        "group": "Pre hurricane"
     },
     "agbd_2022_std": {
-        "title": "2022: AGBD Uncertainty",
+        "title": "&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; AGBD uncertainty",
         "location": "tms/20240116_test_36_2022_std",
         "max_zoom": 13,
         "bounds": [
@@ -44,10 +43,10 @@
                 100
             ]
         },
-        "group":"Pre hurricane"
+        "group": "Pre hurricane"
     },
     "agbd_2023_masked": {
-        "title": "2023: AGBD Prediction",
+        "title": "2023: AGBD prediction",
         "location": "tms/20240116_test_36_2023_mean",
         "max_zoom": 13,
         "bounds": [
@@ -67,10 +66,10 @@
                 350
             ]
         },
-        "group":"Post hurricane"
+        "group": "Post hurricane"
     },
     "agbd_2023_std": {
-        "title": "2023: AGBD Uncertainty",
+        "title": "&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;AGBD uncertainty",
         "location": "tms/20240116_test_36_2023_std",
         "max_zoom": 13,
         "bounds": [
@@ -90,10 +89,10 @@
                 100
             ]
         },
-        "group":"Post hurricane"
+        "group": "Post hurricane"
     },
     "agbd_2022_2023_loss_masked": {
-        "title": "2022-2023: AGBD Loss",
+        "title": "Change: AGBD loss",
         "location": "tms/20240116_test_36_loss",
         "max_zoom": 13,
         "bounds": [
@@ -113,6 +112,30 @@
                 50
             ]
         },
-        "group":"Post hurricane"
+        "group": "Post hurricane"
+    },
+    "agbd_2022_2023_loss_reclass": {
+        "title": "&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; AGBD damage classification",
+        "location": "tms/20240201_test_36_loss_reclass",
+        "max_zoom": 13,
+        "bounds": [
+            [
+                25.1847576689999997,
+                -82.8599668150000070
+            ],
+            [
+                30.4262027730000000,
+                -80.0318457219999999
+            ]
+        ],
+        "legend": {
+            "colors": "linear-gradient(90deg, rgb(43 131 186), rgb(171 221 164), rgb(255 255 191), rgb(253 174 97), rgb(215 25 28))",
+            "labels": [
+                0,
+                50
+            ],
+            "test": 1
+        },
+        "group": "Post hurricane"
     }
 }

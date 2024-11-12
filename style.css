@@ -92,10 +92,10 @@ body {
     width: 100%;
     height: 100%;
     z-index: auto;
-    object-fit:fill ;
+    object-fit: fill ;
     opacity: 0.9;
-    transform: scale(1);
-    /* overflow:hidden; */
+    /* transform: scale(1); */
+    overflow:hidden;
     /* pointer-events: none; */
 
 }
@@ -349,20 +349,48 @@ input[type="file"] {
     grid-area: unset !important;
 }
 
+.info.legend.leaflet-control {
+    background: transparent; 
+}
+
 .legend {
     font-family: Bahnschrift, sans serif !important;
-    background: white;
+    background: rgb(255, 255, 255);
     padding: 5px;
     border-radius: 5px;
     font-size: 14px;
-    bottom: 80px;
+    bottom: 10px;
     right: 4px;
+    width: 235px;
+    margin-bottom: -10px
+    /* overflow: auto;  */
+}
+
+.legend3 {
+    font-family: Bahnschrift, sans serif !important;
+    background: rgb(255, 255, 255);
+    padding: 5px;
+    border-radius: 5px;
+    font-size: 14px;
+    bottom: 10px;
+    left: 4px;
+    width: 150px;
+    margin-top: -120px;
+    margin-left: -48px
+    /* overflow: auto;  */
 }
 
 .legend-item {
     display: inline-flex;
     width: 20px;
     height: 5px;
+    margin-right: 5px;
+}
+
+.legend-item2 {
+    display: inline-flex;
+    width: 10px;
+    height: 10px;
     margin-right: 5px;
 }
 
@@ -419,3 +447,35 @@ div.leaflet-top.leaflet-right>div>section>div.leaflet-control-layers-base>div {
     font-weight: bold;
 
 }
+
+/* The Modal (background) */
+.modal2 {
+    display: none; /* Hidden by default */
+    position:absolute; /* Stay in place */
+    z-index: 1000; /* Sit on top */
+
+    right: 270px;
+    top:490px;
+
+    width: 246px; /* Full width */
+    height: auto; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(255, 255, 255, 0); /* Fallback color */
+  }
+  
+  /* Modal Content */
+  .modal-content {
+    background-color: rgb(70, 132, 170);
+    padding: 10px;
+    border: 1px solid #ffffff;
+    border-radius: 5px;
+    height: auto;
+    font-size: 10px;
+    font-family: Bahnschrift, sans serif !important;
+    text-align: justify !important;
+    color: white;
+
+  }
+  
+
+  
