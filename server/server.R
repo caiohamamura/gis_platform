@@ -5,8 +5,11 @@ library(glue)
 library(geojsonsf)
 
 rasters = list(
-  gedi_carbon = terra::rast('gedi_carbon.tif'),
-  gedi_carbon2 = terra::rast('gedi_carbon.tif')
+  agbd_2022_masked = terra::rast('20240116_test_36_2022_mean.tif'),
+  agbd_2022_std = terra::rast('20240116_test_36_2022_std.tif'),
+  agbd_2023_masked = terra::rast('20240116_test_36_2023_mean.tif'),
+  agbd_2023_std = terra::rast('20240116_test_36_2023_std.tif'),
+  agbd_2022_2023_loss_masked = terra::rast('20240116_test_36_loss.tif')
 )
 
 
@@ -24,7 +27,7 @@ cors <- function(res) {
 #* @param bbox Bounding box
 #* @param layer The layer name
 #* @get /api
-api <- function(bbox, layer = 'gedi_carbon') {
+api <- function(bbox, layer = 'agbd_2022_masked') {
   message(layer)
   # Retrieve the 'bbox' parameter from the query string
   
