@@ -112,6 +112,8 @@ Vue.createApp({
                 zoomControl: false,
             }).setView([27.5, -81.5], 9);
 
+            window.mapa = map;
+
             mapRef.value = map;
             baseMaps[activeBaseLayer.value].addTo(map);
             overleafLayers[activeLayer.value].addTo(map);
@@ -130,42 +132,136 @@ Vue.createApp({
 
             };
 
+            function addVectorGrid(overlayerInfo) {
+
+                let url = `${overlayerInfo.location}/{z}/{x}/{y}.pbf`
+                let styleFunc = function (feature) {
+                    return processStyle(feature, overlayerInfo.style);
+                }
+                let style = {}
+                style[overlayerInfo.layer] = styleFunc;
+
+                options = {
+                    vectorTileLayerStyles: style,
+                    interactive: true,
+                }
+                const tileLayer = L.vectorGrid.protobuf(url, options)
+
+                tileLayer.on('mouseover', function (e) {
+                    e.layer.bindTooltip(e.layer.properties.county_nam, overlayerInfo.tooltip);
+                    e.layer._tooltip.setLatLng([e.layer.properties.lat, e.layer.properties.lon]).addTo(map);
+
+                })
+
+                return tileLayer;
+            }
+
+            // Test if x is in range
+            function inRange(x, range) {
+                let op1 = range[0] == '[' ? '>=' : '>'
+                let op2 = range.endsWith(']') ? '<=' : '<'
+                let [a, b] = range.slice(1, -1).split(',').map(e => parseFloat(e));
+                return eval(`x${op1}${a} && x${op2}${b}`)
+            }
+
+            // Check if test is a valid range
+            function isRange(range) {
+                return /^(\[|\()[0-9]+\.?[0-9]*, ?[0-9]+\.?[0-9]*(\]|\))$/.test(range)
+            }
+
+            function processStyle(properties, style) {
+                let styleKeys = Object.keys(style);
+
+                for (let key of styleKeys) {
+                    // if key ends with Map check if style also have a key
+                    // with the same name ending with Prop
+                    // If it does use override the key prefix with the value
+                    // of the property in feature
+                    keyProp = key + 'Prop';
+                    if (key.endsWith('Map') && style.hasOwnProperty(keyProp)) {
+                        // Check if the property exists in the feature
+                        if (properties.hasOwnProperty(style[keyProp])) {
+                            let newKey = key.replace('Map', '');
+                            let value = properties[style[keyProp]];
+
+                            // Check if the first key from the style[key] is a range
+                            if (isRange(Object.keys(style[key])[0])) {
+                                for (let range of Object.keys(style[key])) {
+                                    if (inRange(value, range)) {
+                                        style[newKey] = style[key][range];
+                                    }
+                                }
+                            }
+                            else {
+                                let keysMap = Object.keys(style[key]);
+                                // Check if the value exists in the style[key]
+                                if (keysMap.includes(value)) {
+                                    style[newKey] = style[key][value];
+                                }
+
+                            }
+
+                        }
+                    }
+
+                }
+                return style;
+            }
+
+
             async function loadLayerData() {
                 try {
                     const response = await fetch('overlayers.json');
                     const data = await response.json();
                     window.data = data;
-                    for (let chave in data) {
+                    let allKeys = Object.keys(data);
+                    let layersJson = allKeys.filter(
+                        e => data[e].location.endsWith('geojson')
+                    );
+                    // Set difference from Object.keys(data) and layersJson
+                    let layersGridVector = allKeys.filter(e => !layersJson.includes(e));
+                    console.log(layersGridVector);
+                    for (let chave of layersGridVector) {
+                        const Layer = addVectorGrid(data[chave]);
+                        console.log(Layer);
+                        if (data[chave].title in vectors) {
+                            // Is LayerGroup just add 
+                            if (vectors[data[chave].title] instanceof Layer.LayerGroup) {
+                                vectors[data[chave].title].addLayer(Layer)
+                            } else {
+                                vectors[data[chave].title] = Layer.layerGroup([vectors[data[chave].title], Layer])
+                            }
+                        } else {
+                            vectors[data[chave].title] = Layer;
+                        }
+                        
+                        addLeg2(Layer, map, data[chave]);
+                        
+                    }
+                    for (let chave of layersJson) {
 
                         const LayerData = await (await fetch(data[chave].location)).json()
                         const Layer = L.geoJSON(LayerData, {
                             style: function (feature) {
+                                let style = processStyle(feature.properties, data[chave].style);
 
-                                if (chave === "ianTrack") {
-                                    let featureColor = data[chave].style.colorMap[feature.properties.ID]
-                                    return {
-                                        ...data[chave].style,
-                                        color: featureColor
-                                    };
-                                }
+                                // if (chave === "countyLayer2") {
+                                //     let color = 'rgb(225, 225, 225)';
+                                //     const countValue = feature.properties.c2_byAll;
+                                //     if (countValue >= 0.1 && countValue < 5) {
+                                //         color = "rgb(184, 213, 232)";
+                                //     } else if (countValue >= 5 && countValue < 10) {
+                                //         color = "rgb(113, 172, 209)";
+                                //     } else if (countValue >= 10) {
+                                //         color = "rgb(43, 131, 186)";
+                                //     }
+                                //     style = {
+                                //         ...data[chave].style,
+                                //         fillColor: color
+                                //     };
+                                // }
 
-                                else if (chave === "countyLayer2") {
-                                    let color = 'rgb(225, 225, 225)';
-                                    const countValue = feature.properties.c2_byAll;
-                                    if (countValue >= 0.1 && countValue < 5) {
-                                        color = "rgb(184, 213, 232)";
-                                    } else if (countValue >= 5 && countValue < 10) {
-                                        color = "rgb(113, 172, 209)";
-                                    } else if (countValue >= 10) {
-                                        color = "rgb(43, 131, 186)";
-                                    }
-                                    return {
-                                        ...data[chave].style,
-                                        fillColor: color
-                                    };
-                                }
-
-                                else if (chave === "countyLayer3") {
+                                if (chave === "countyLayer3") {
                                     let color = 'rgb(200, 200, 200)';
                                     const countValue = feature.properties.c3_byAll;
                                     if (countValue >= 0.1 && countValue < 2) {
@@ -213,10 +309,7 @@ Vue.createApp({
                                     };
                                 }
 
-                                else {
-                                    return data[chave].style
-
-                                }
+                                return style
                             },
 
                             pointToLayer: function (feature, latlng) {
@@ -247,8 +340,14 @@ Vue.createApp({
                         }
                         )
 
+                        // If already exists, add to the layer group
                         if (data[chave].title in vectors) {
-                            vectors[data[chave].title] = L.layerGroup([vectors[data[chave].title], Layer])
+                            // Is LayerGroup just add 
+                            if (vectors[data[chave].title] instanceof L.LayerGroup) {
+                                vectors[data[chave].title].addLayer(Layer)
+                            } else {
+                                vectors[data[chave].title] = L.layerGroup([vectors[data[chave].title], Layer])
+                            }
                         } else {
                             vectors[data[chave].title] = Layer;
                         }
@@ -279,6 +378,8 @@ Vue.createApp({
             }
 
             await loadLayerData();
+
+
 
 
             function addLeg(feature, map) {
@@ -314,16 +415,17 @@ Vue.createApp({
                 });
             }
 
-            function addLeg2(feature, map) {
-                const legendContent = `
+            function addLeg2(feature, map, data) {
+                let legendContent = `
                     <div class="legend">
-                        <div class="legend-title" style="font-weight: bold;">Percentage of forested area classified as light damage within the county</div>
-                        <div class="legend-item2" style="background-color: rgb(200, 200, 200);"></div> No damage<br>
-                        <div class="legend-item2" style="background-color: rgb(184, 213, 232);"></div> 0 to 5%<br>
-                        <div class="legend-item2" style="background-color: rgb(113, 172, 209);"></div> 5 to 10%<br>
-                        <div class="legend-item2" style="background-color: rgb(43, 131, 186);"></div> 10 to 20%<br>
-                    </div>
-                `;
+                        <div class="legend-title" style="font-weight: bold;">${data.legend}</div> 
+                        `; 
+                        for (range in data.style.fillColorMap) {
+                            let [a, b] = range.slice(1,-1).split(',');
+                            legendContent += `<div class="legend-item" style="background-color: ${data.style.fillColorMap[range]};"></div>${a} to ${b}%<br>`;
+                        }
+
+                       legendContent += "</div>";
 
                 const legendControl = L.control({ position: 'bottomleft' });
 
@@ -413,7 +515,7 @@ Vue.createApp({
                 const legendContent = `
                 <div class="legend">
                 <div class="legend-title" style="font-weight: bold;">Percentage of forested area classified as catastrophic damage within the county</div>
-                <div class="legend-item2" style="background-color: rgb(225, 225, 225);"></div> No damage<br>
+                <div class="legend-item2" style="background-color: rgb(200, 200, 200);"></div> No damage<br>
                     <div class="legend-item2" style="background-color:rgb(241, 178, 179);"></div> 0 to 0.5%<br>
                     <div class="legend-item2" style="background-color: rgb(228, 101, 103);"></div> 0.5 to 1%<br>
                     <div class="legend-item2" style="background-color: rgb(215, 25, 28);"></div> 1 to 1.5%<br>
@@ -473,36 +575,40 @@ Vue.createApp({
             window.layerControl2 = layerControl2;
 
 
+
+
+
+
             for (let ii of [...document.querySelectorAll("label")].slice(-4)) {
                 let label = ii;
                 console.log(label.textContent);
                 let icone = document.createElement("span");
                 icone.innerHTML = '<img src="figures/info-16x16.png">';
-            
+
                 // Show the modal on mousedown
-                icone.onmouseenter = function(e) {
+                icone.onmouseenter = function (e) {
                     //console.log(e); 
                     var modal = document.getElementById("myModal");
                     modal.style.display = "block";
-                    
+
                     // Prevent the modal from closing when clicking inside it
                     var modalContent = document.getElementsByClassName("modal-content")[0];
-                    modalContent.onclick = function(event) {
+                    modalContent.onclick = function (event) {
                         event.stopPropagation();
                     }
                 };
-            
+
                 // Hide the modal on mouseup 
-                window.onmouseout = function() {
+                window.onmouseout = function () {
                     var modal = document.getElementById("myModal");
                     if (modal.style.display === "block") {
                         modal.style.display = "none";
                     }
                 };
-            
+
                 label.appendChild(icone);
             }
-            
+
             // window.layers = layers;
 
             // refazer = function () {
@@ -644,8 +750,6 @@ Vue.createApp({
                         .setLatLng(overlay.getBounds().getCenter())
                         .setContent(`<p>Mean: ${mean} Mg/ha</p>`)
                         .addTo(map));
-                if (overlays.some(e => e == overlay) == false)
-                    overlays.push(overlay)
                 overlay.on('mouseover', function () {
                     this.openPopup();
                 });
@@ -720,24 +824,39 @@ Vue.createApp({
             }
 
             async function handlePolygon(overlay) {
-                let wkt = convertLatLngToWKT(overlay.getLatLngs()[0]);
-                let res = await fetch(`${location.href.match(/(http:\/\/.*?)(:\d+)?\//)[1]}:9000/polygon?${new URLSearchParams({
-                    wkt: wkt,
-                    layer: activeLayer.value
-                })}`);
-                let obj = await res.json();
                 if (polygons.some(e => e == overlay) === false)
                     polygons.push(overlay);
-                bindPopup(overlay, obj.mean[0]);
+                if (overlays.some(e => e == overlay) == false)
+                    overlays.push(overlay)
+
+                let wkt = convertLatLngToWKT(overlay.getLatLngs()[0]);
+                try {
+                    let res = await fetch(`${location.href.match(/(http:\/\/.*?)(:\d+)?\//)[1]}:9000/polygon?${new URLSearchParams({
+                        wkt: wkt,
+                        layer: activeLayer.value
+                    })}`);
+                    let obj = await res.json();
+
+                    bindPopup(overlay, obj.mean[0]);
+                } catch (error) {
+                    console.warn('Error handling polygon:', error);
+                }
             }
 
             async function handleRectangle(overlay) {
-                let res = await fetch(`${location.href.match(/(http:\/\/.*?)(:\d+)?\//)[1]}:9000/api?bbox=${overlay.getBounds().toBBoxString()}&layer=${activeLayer.value}`);
-                let obj = await res.json();
                 if (rectangles.some(e => e === overlay) === false) {
                     rectangles.push(overlay);
                 }
-                bindPopup(overlay, obj.mean[0]);
+                if (overlays.some(e => e == overlay) == false)
+                    overlays.push(overlay)
+
+                try {
+                    let res = await fetch(`${location.href.match(/(http:\/\/.*?)(:\d+)?\//)[1]}:9000/api?bbox=${overlay.getBounds().toBBoxString()}&layer=${activeLayer.value}`);
+                    let obj = await res.json();
+                    bindPopup(overlay, obj.mean[0]);
+                } catch (error) {
+                    console.warn('Error handling rectangle:', error);
+                }
             }
 
             async function handleShp(overlay) {
@@ -803,6 +922,11 @@ Vue.createApp({
             $('#searchPrompt').onselect = changedValue;
 
             async function handleGeoJSON(layer) {
+                if (shapes.some(e => e == layer) === false)
+                    shapes.push(layer);
+                if (overlays.some(e => e == overlay) == false)
+                    overlays.push(overlay)
+                
                 let res = await fetch(`${location.href.match(/(http:\/\/.*?)(:\d+)?\//)[1]}:9000/geojson?layer=${activeLayer.value}`, {
                     method: 'POST',
                     body: JSON.stringify({
@@ -810,8 +934,6 @@ Vue.createApp({
                     })
                 });
                 let obj = await res.json();
-                if (shapes.some(e => e == layer) === false)
-                    shapes.push(layer);
                 bindPopup(layer, obj.mean[0]);
             }
 
@@ -860,3 +982,4 @@ function closePopup() {
 
 // Open the modal pop-up when the page is loaded
 window.onload = openPopup;
+

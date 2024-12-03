@@ -1,4 +1,26 @@
 {
+
+    "ianTrack2": {
+        "title": "Hurricane info",
+        "location": "vector/iantrack.geojson",
+        "style": {
+            "weight": 20, 
+            "weightMap": {
+                "HU_1": 15,
+                "HU_2": 20,
+                "HU_3": 25,
+                "HU_4": 30,
+                "HU_5": 35,
+                "LO_0": 5,
+                "TD_0": 5,
+                "TS_0": 10
+            },
+            "weightMapProp": "ID",
+            "opacity": 0.7,
+            "color": "black"
+        }
+    },
+
     "ianTrack": {
         "title": "Hurricane info",
         "location": "vector/iantrack.geojson",
@@ -16,6 +38,7 @@
                 "TS_0": "rgb(255, 255, 191)"
 
             },
+            "colorMapProp": "ID",
             "dashArray": "1"
 
         }
@@ -33,16 +56,6 @@
             "fillOpacity": 1
         }
     },
-    
-    "ianTrack2": {
-        "title": "Hurricane info",
-        "location": "vector/iantrack.geojson",
-        "style": {
-            "weight": 8,
-            "opacity": 1,
-            "color": "black"
-        }
-    },
 
     "aoiLayer": {
         "title": "Area of interest",
@@ -58,65 +71,103 @@
 
     "countyLayer2": {
         "title": "Counties: Light damage ",
-        "location": "vector/county_or_equivalent.geojson",
+        "legend": "Percentage of forested area classified as light damage within the county",
+        "location": "tms/county2",
         "style": {
             "weight": 2,
             "color": "#000",
-            "fillOpacity": 0.9
+            "fill": true,
+            "fillOpacity": 0.9,
+            "fillColorMap": {
+                "[0, 1)": "rgb(200, 200, 200)",
+                "[1, 5)": "rgb(184, 213, 232)",
+                "[5, 10)": "rgb(113, 172, 209)",
+                "[10, 20]": "rgb(43, 131, 186)"
+            },
+            "fillColorMapProp": "c2_byAll"
         },
         "tooltip": {
             "permanent": false,
             "direction": "center",
             "className": "county-label"
         },
-        "property": "county_nam"
+        "property": "county_nam",
+        "layer": "county_latlon"
     },
-
     "countyLayer3": {
-        "title": "Counties: Moderate damage ",
-        "location": "vector/county_or_equivalent.geojson",
+        "title": "Counties: Medium damage ",
+        "legend": "Percentage of forested area classified as medium damage within the county",
+        "location": "tms/county2",
         "style": {
             "weight": 2,
             "color": "#000",
-            "fillOpacity": 0.9
+            "fill": true,
+            "fillOpacity": 0.9,
+            "fillColorMap": {
+                "[0, 0.1)": "rgb(200, 200, 200)",
+                "[0.1, 2)": "rgb(205, 225, 202)",
+                "[2, 4)": "rgb(155, 195, 149)",
+                "[4, 8]": "rgb(106, 166, 97)"
+            },
+            "fillColorMapProp": "c3_byAll"
         },
         "tooltip": {
             "permanent": false,
             "direction": "center",
             "className": "county-label"
         },
-        "property": "county_nam"
+        "property": "county_nam",
+        "layer": "county_latlon"
     },
-
     "countyLayer4": {
         "title": "Counties: Severe damage ",
-        "location": "vector/county_or_equivalent.geojson",
+        "legend": "Percentage of forested area classified as severe damage within the county",
+        "location": "tms/county2",
         "style": {
             "weight": 2,
             "color": "#000",
-            "fillOpacity": 0.9
+            "fill": true,
+            "fillOpacity": 0.9,
+            "fillColorMap": {
+                "[0, 0.2)": "rgb(200, 200, 200)",
+                "[0.2, 1)": "rgb(247, 211, 177)",
+                "[1, 2)": "rgb(239, 167, 99)",
+                "[2, 4]": "rgb(232, 123, 21)"
+            },
+            "fillColorMapProp": "c4_byAll"
         },
         "tooltip": {
             "permanent": false,
             "direction": "center",
             "className": "county-label"
         },
-        "property": "county_nam"
+        "property": "county_nam",
+        "layer": "county_latlon"
     },
-
     "countyLayer5": {
         "title": "Counties: Catastrophic damage ",
-        "location": "vector/county_or_equivalent.geojson",
+        "legend": "Percentage of forested area classified as catastrophic damage within the county",
+        "location": "tms/county2",
         "style": {
             "weight": 2,
             "color": "#000",
-            "fillOpacity": 0.9
+            "fill": true,
+            "fillOpacity": 0.9,
+            "fillColorMap": {
+                "[0, 0.1)": "rgb(200, 200, 200)",
+                "[0.1, 0.5)": "rgb(241, 178, 179)",
+                "[0.5, 1)": "rgb(228, 101, 103)",
+                "[1, 2]": "rgb(215, 25, 28)" 
+            },
+            "fillColorMapProp": "c5_byAll"
         },
         "tooltip": {
             "permanent": false,
             "direction": "center",
             "className": "county-label"
         },
-        "property": "county_nam"
+        "property": "county_nam",
+        "layer": "county_latlon"
     }
+
 }
